@@ -126,7 +126,13 @@
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
     0 10px 30px -5px rgba(0, 0, 0, 0.5),
     0 0 25px rgba(56, 189, 248, 0.06);
-  transition: all 0.3s ease;
+  transition: 
+    max-width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.5s ease;
+  will-change: max-width, padding, box-shadow;
 }
 
 .navbar-container:hover {
@@ -173,14 +179,15 @@
 .navbar-brand {
   display: flex;
   align-items: center;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 .desktop-nav {
   display: flex;
   align-items: center;
   gap: 32px;
-  transition: gap 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: gap 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .nav-link-btn {
@@ -190,7 +197,12 @@
   color: #94a3b8;
   padding: 6px 4px;
   position: relative;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: 
+    font-size 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.2s ease, 
+    transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .nav-link-btn:hover {
@@ -226,8 +238,16 @@
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
     0 4px 20px rgba(12, 40, 52, 0.5),
     0 0 15px rgba(56, 189, 248, 0.2);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: 
+    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    font-size 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   letter-spacing: 0.1px;
+  white-space: nowrap;
+  will-change: padding, font-size, transform;
 }
 
 .book-call-btn:hover {

@@ -7,12 +7,14 @@ export default function Navbar({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      // Shrink navbar when scrolling past hero threshold (50px)
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 40);
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
