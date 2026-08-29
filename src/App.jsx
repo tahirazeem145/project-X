@@ -4,6 +4,7 @@ import HeroSection from './components/HeroSection';
 import StackedCards from './components/ui/glass-cards';
 import WhyWorkWithUsSection from './components/WhyWorkWithUsSection';
 import TestimonialsSection from './components/TestimonialsSection';
+import FAQ1 from './components/ui/faq-monocrhome';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
@@ -70,6 +71,9 @@ function App() {
 
         {/* Testimonials Section */}
         <TestimonialsSection />
+
+        {/* Frequently Asked Questions (FAQ) Section */}
+        <FAQ1 />
       </main>
 
       {/* Fixed WhatsApp Floating Action Button */}
