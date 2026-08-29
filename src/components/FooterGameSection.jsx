@@ -197,8 +197,20 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       }
     };
 
+    const handleTouch = (e) => {
+      const target = e.target;
+      if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('button') || target.closest('a'))) {
+        return;
+      }
+      if (e.cancelable && s.running) {
+        e.preventDefault();
+      }
+      startOrJump();
+    };
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('keydown', handleKeyDown);
+    canvas.addEventListener('touchstart', handleTouch, { passive: false });
 
     const createCrashExplosion = (x, y) => {
       for (let i = 0; i < 22; i++) {
@@ -455,6 +467,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
+      canvas.removeEventListener('touchstart', handleTouch);
       cancelAnimationFrame(animationId);
     };
   }, []);
