@@ -301,8 +301,8 @@ export function FAQ1({ faqs = defaultFaqs }: FAQProps) {
     >
       <div
         style={{
-          width: "80%",
-          maxWidth: "1240px",
+          width: "90%",
+          maxWidth: "860px",
           margin: "0 auto",
           padding: 0,
         }}
