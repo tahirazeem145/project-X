@@ -7,6 +7,7 @@ import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
 import VerifyCertificateModal from './components/VerifyCertificateModal';
 import InfoModal from './components/InfoModal';
+import ProjectDetailsModal from './components/ProjectDetailsModal';
 import DotGridCanvas from './components/DotGridCanvas';
 import './App.css';
 
