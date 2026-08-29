@@ -78,7 +78,8 @@
 .navbar-container,
 .info-item-card,
 .cert-card-result,
-.project-card {
+.project-card,
+.why-us-card {
   position: relative;
   overflow: hidden;
 }
@@ -89,7 +90,8 @@
 .navbar-container::after,
 .info-item-card::after,
 .cert-card-result::after,
-.project-card::after {
+.project-card::after,
+.why-us-card::after {
   content: '';
   position: absolute;
   top: 0;
