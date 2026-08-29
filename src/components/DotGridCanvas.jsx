@@ -18,14 +18,10 @@ export default function DotGridCanvas() {
     let totalGridWidth = 0;
     let totalGridHeight = 0;
 
-    // Mouse tracking with smooth interpolation
-    const mouse = {
-      x: -1000,
-      y: -1000,
-      targetX: -1000,
-      targetY: -1000,
-      radius: 90, // Gentle ripple radius
-    };
+    // Active radiating ripple waves
+    let ripples = [];
+    let lastMousePos = { x: -1000, y: -1000 };
+    let lastRippleTime = 0;
 
     function initDots() {
       dots = [];
@@ -47,11 +43,25 @@ export default function DotGridCanvas() {
             vy: 0,
             size: 1.35,
             baseSize: 1.35,
-            color: 'rgba(255, 255, 255, 0.20)',
+            glow: 0,
           });
         }
       }
     }
+
+    const spawnRipple = (x, y, maxRadius = 160, power = 1.0) => {
+      // Limit simultaneous ripples for high performance
+      if (ripples.length > 8) ripples.shift();
+      ripples.push({
+        x,
+        y,
+        radius: 4,
+        maxRadius,
+        speed: 4.5,
+        strength: power,
+        wavelength: 22,
+      });
+    };
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
@@ -60,54 +70,74 @@ export default function DotGridCanvas() {
     };
 
     const handleMouseMove = (e) => {
-      mouse.targetX = e.clientX;
-      mouse.targetY = e.clientY;
+      const now = performance.now();
+      const dx = e.clientX - lastMousePos.x;
+      const dy = e.clientY - lastMousePos.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Trigger ripple wave when mouse moves
+      if (dist > 16 || now - lastRippleTime > 120) {
+        spawnRipple(e.clientX, e.clientY, 150, Math.min(1.2, Math.max(0.6, dist / 25)));
+        lastMousePos = { x: e.clientX, y: e.clientY };
+        lastRippleTime = now;
+      }
     };
 
-    const handleMouseLeave = () => {
-      mouse.targetX = -1000;
-      mouse.targetY = -1000;
+    const handleClick = (e) => {
+      // Stronger expanding ripple wave on click/tap
+      spawnRipple(e.clientX, e.clientY, 240, 1.8);
     };
 
     const handleTouchMove = (e) => {
       if (e.touches.length > 0) {
-        mouse.targetX = e.touches[0].clientX;
-        mouse.targetY = e.touches[0].clientY;
-      }
-    };
+        const touch = e.touches[0];
+        const now = performance.now();
+        const dx = touch.clientX - lastMousePos.x;
+        const dy = touch.clientY - lastMousePos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
-    const handleTouchEnd = () => {
-      mouse.targetX = -1000;
-      mouse.targetY = -1000;
+        if (dist > 18 || now - lastRippleTime > 140) {
+          spawnRipple(touch.clientX, touch.clientY, 140, 1.0);
+          lastMousePos = { x: touch.clientX, y: touch.clientY };
+          lastRippleTime = now;
+        }
+      }
     };
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('click', handleClick);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd);
 
     initDots();
 
-    // Slow drift speed (pixels per frame)
+    // Constant slow drift speed
     const driftSpeedX = 0.2;
     const driftSpeedY = 0.2;
 
     const render = () => {
-      // Smooth mouse movement interpolation
-      mouse.x += (mouse.targetX - mouse.x) * 0.12;
-      mouse.y += (mouse.targetY - mouse.y) * 0.12;
-
       ctx.clearRect(0, 0, width, height);
 
+      // 1. Update active ripple waves
+      for (let r = ripples.length - 1; r >= 0; r--) {
+        const ripple = ripples[r];
+        ripple.radius += ripple.speed;
+        ripple.strength *= 0.96; // fade strength as wave propagates
+
+        if (ripple.radius > ripple.maxRadius || ripple.strength < 0.02) {
+          ripples.splice(r, 1);
+        }
+      }
+
+      // 2. Update and draw dots
       for (let i = 0; i < dots.length; i++) {
         const dot = dots[i];
 
-        // 1. Continuous slow drift forward
+        // Smooth continuous drift forward
         dot.baseX += driftSpeedX;
         dot.baseY += driftSpeedY;
 
-        // 2. Off-screen wrapping (Only wraps invisible dots off-screen so visible dots never jump)
+        // Seamless offscreen wrap
         if (dot.baseX > width + spacing * 2) {
           dot.baseX -= totalGridWidth;
           dot.x -= totalGridWidth;
@@ -117,32 +147,41 @@ export default function DotGridCanvas() {
           dot.y -= totalGridHeight;
         }
 
-        // 3. Distance from mouse cursor
-        const dx = mouse.x - dot.x;
-        const dy = mouse.y - dot.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        let totalPushX = 0;
+        let totalPushY = 0;
+        let maxGlow = 0;
 
-        // 4. Subtle, gentle mouse ripple effect
-        if (dist < mouse.radius && mouse.x > 0 && mouse.y > 0) {
-          const force = 1 - dist / mouse.radius;
-          const angle = Math.atan2(dy, dx);
-          // Soft push force
-          const pushX = Math.cos(angle) * force * 5.5;
-          const pushY = Math.sin(angle) * force * 5.5;
+        // Apply ripple waves displacement
+        for (let r = 0; r < ripples.length; r++) {
+          const ripple = ripples[r];
+          const dx = dot.x - ripple.x;
+          const dy = dot.y - ripple.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
 
-          dot.vx -= pushX * 0.08;
-          dot.vy -= pushY * 0.08;
+          const waveDist = Math.abs(dist - ripple.radius);
 
-          // Subtle size and soft cyan glow
-          dot.size = dot.baseSize + force * 0.4;
-          const alpha = 0.20 + force * 0.32;
-          dot.color = `rgba(56, 189, 248, ${alpha})`;
-        } else {
-          dot.size += (dot.baseSize - dot.size) * 0.1;
-          dot.color = 'rgba(255, 255, 255, 0.20)';
+          if (waveDist < ripple.wavelength * 1.5 && dist > 1) {
+            // Sine wave profile across the wave ring
+            const waveFactor = Math.cos((waveDist / (ripple.wavelength * 1.5)) * (Math.PI / 2));
+            const wavePhase = Math.sin((dist - ripple.radius) / ripple.wavelength * Math.PI);
+            const displacement = wavePhase * waveFactor * ripple.strength * 7;
+
+            const angle = Math.atan2(dy, dx);
+            totalPushX += Math.cos(angle) * displacement;
+            totalPushY += Math.sin(angle) * displacement;
+
+            const glowAmount = waveFactor * ripple.strength;
+            if (glowAmount > maxGlow) {
+              maxGlow = glowAmount;
+            }
+          }
         }
 
-        // 5. Smooth elastic spring to current moving base position
+        // Apply wave impulse to velocity
+        dot.vx += totalPushX * 0.15;
+        dot.vy += totalPushY * 0.15;
+
+        // Spring force returning to base grid position
         const springX = (dot.baseX - dot.x) * 0.08;
         const springY = (dot.baseY - dot.y) * 0.08;
 
@@ -152,11 +191,20 @@ export default function DotGridCanvas() {
         dot.x += dot.vx;
         dot.y += dot.vy;
 
-        // 6. Draw dot (only if within or near viewport)
+        // Size & Color glow
+        dot.glow += (maxGlow - dot.glow) * 0.2;
+        const currentSize = dot.baseSize + dot.glow * 0.8;
+        const alpha = 0.20 + dot.glow * 0.55;
+
+        // Render dot
         if (dot.x >= -spacing && dot.x <= width + spacing && dot.y >= -spacing && dot.y <= height + spacing) {
           ctx.beginPath();
-          ctx.arc(dot.x, dot.y, Math.max(0.5, dot.size), 0, Math.PI * 2);
-          ctx.fillStyle = dot.color;
+          ctx.arc(dot.x, dot.y, Math.max(0.5, currentSize), 0, Math.PI * 2);
+          if (dot.glow > 0.05) {
+            ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+          } else {
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+          }
           ctx.fill();
         }
       }
@@ -169,9 +217,8 @@ export default function DotGridCanvas() {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('click', handleClick);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
