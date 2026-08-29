@@ -227,7 +227,7 @@ export default function DotGridCanvas() {
           ctx.beginPath();
           ctx.arc(dot.x, dot.y, Math.max(0.5, currentSize), 0, Math.PI * 2);
           if (dot.glow > 0.05) {
-            ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+            ctx.fillStyle = `rgba(0, 180, 216, ${alpha})`;
           } else {
             ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
           }
@@ -285,7 +285,7 @@ export default function DotGridCanvas() {
           ctx.beginPath();
           ctx.arc(head.x, head.y, 2.2, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-          ctx.shadowColor = 'rgba(56, 189, 248, 0.9)';
+          ctx.shadowColor = 'rgba(0, 180, 216, 0.95)';
           ctx.shadowBlur = 12;
           ctx.fill();
         }
