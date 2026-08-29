@@ -265,9 +265,10 @@ export function ScrollReelTestimonials({
         minHeight: "340px",
       }}
     >
-      {/* Reel section */}
+      {/* Reel section (Desktop Only) */}
       <div
         aria-hidden="true"
+        className="scroll-reel-desktop-reel"
         style={{
           position: "relative",
           width: "380px",
@@ -326,6 +327,7 @@ export function ScrollReelTestimonials({
 
       {/* Content section */}
       <div
+        className="scroll-reel-content-section"
         style={{
           display: "flex",
           minWidth: 0,
@@ -336,8 +338,24 @@ export function ScrollReelTestimonials({
           padding: "36px 32px 32px 24px",
         }}
       >
+        {/* Mobile-only avatar and quote header */}
+        <div className="scroll-reel-mobile-header">
+          <div className="scroll-reel-mobile-avatar-wrap">
+            <img
+              src={current.image}
+              alt={current.alt ?? current.author}
+              className="scroll-reel-mobile-avatar"
+            />
+          </div>
+          <div className="scroll-reel-mobile-meta">
+            <span className="scroll-reel-mobile-author">{current.author}</span>
+            <span className="scroll-reel-mobile-tag">Verified Reviewer</span>
+          </div>
+        </div>
+
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <svg
+            className="scroll-reel-quote-icon"
             style={{ display: "block", width: "36px", height: "36px", color: "rgba(56, 189, 248, 0.4)" }}
             viewBox="0 0 24 24"
             fill="currentColor"
