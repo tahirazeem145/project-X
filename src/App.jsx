@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
+import OurWorkSection from './components/OurWorkSection';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
 import VerifyCertificateModal from './components/VerifyCertificateModal';
 import InfoModal from './components/InfoModal';
+import ProjectDetailsModal from './components/ProjectDetailsModal';
 import DotGridCanvas from './components/DotGridCanvas';
 import './App.css';
 
@@ -14,6 +16,7 @@ function App() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isVerifyCertOpen, setIsVerifyCertOpen] = useState(false);
   const [infoModalTab, setInfoModalTab] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [quoteEmail, setQuoteEmail] = useState('');
   const [toastMessage, setToastMessage] = useState('');
 
@@ -49,11 +52,18 @@ function App() {
         onOpenInfoTab={(tabKey) => setInfoModalTab(tabKey)}
       />
 
-      {/* Main Hero Section matching user screenshot */}
+      {/* Main Content Area */}
       <main>
+        {/* Hero Section matching reference design */}
         <HeroSection
           onGetQuote={handleGetQuote}
           onOpenReviewDetails={() => setInfoModalTab('why-us')}
+        />
+
+        {/* Our Work / Portfolio Showcase Section */}
+        <OurWorkSection
+          onOpenProjectDetails={(project) => setSelectedProject(project)}
+          onOpenAllWork={() => setInfoModalTab('why-us')}
         />
       </main>
 
@@ -77,6 +87,12 @@ function App() {
       <VerifyCertificateModal
         isOpen={isVerifyCertOpen}
         onClose={() => setIsVerifyCertOpen(false)}
+      />
+
+      <ProjectDetailsModal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
       />
 
       <InfoModal
