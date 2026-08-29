@@ -15,12 +15,7 @@ const STEP = 3 * (CELL + GAP);
 const EXIT_MS = 240;
 const SLIDE_MS = 800;
 
-const EASE_INOUT = "cubic-bezier(0.65,0,0.35,1)";
-
-const QUOTE_CLASSES =
-  "m-0 text-lg font-medium leading-[1.4] tracking-[-0.02em] text-white sm:text-[20px]";
-const AUTHOR_CLASSES =
-  "m-0 text-sm font-medium leading-[1.3] text-slate-400";
+const EASE_INOUT = "cubic-bezier(0.65, 0, 0.35, 1)";
 
 const FEATURED_SHADOW =
   "0 1.008px 0.705px -0.563px rgba(0,0,0,0.18), 0 2.389px 1.672px -1.125px rgba(0,0,0,0.17), 0 4.357px 3.05px -1.688px rgba(0,0,0,0.17), 0 7.244px 5.07px -2.25px rgba(0,0,0,0.16), 0 11.698px 8.188px -2.813px rgba(0,0,0,0.15), 0 19.148px 13.404px -3.375px rgba(0,0,0,0.13), 0 32.972px 23.08px -3.938px rgba(0,0,0,0.09), 0 60px 42px -4.5px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 0 rgba(0,0,0,0.6)";
@@ -29,36 +24,80 @@ function cn(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
+/* Blurred placeholder cell */
 function Cell() {
   return (
     <div
       aria-hidden="true"
-      className="shrink-0 rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/[0.02] blur-[0.5px] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
-      style={{ width: CELL, height: CELL }}
+      style={{
+        width: `${CELL}px`,
+        height: `${CELL}px`,
+        minWidth: `${CELL}px`,
+        minHeight: `${CELL}px`,
+        flexShrink: 0,
+        borderRadius: "16px",
+        border: "1px solid rgba(255, 255, 255, 0.12)",
+        background: "linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))",
+        boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+        backdropFilter: "blur(4px)",
+      }}
     />
   );
 }
 
+/* Featured portrait tile with desaturation + gradient sheen overlays */
 function Featured({ src, alt }) {
   return (
     <div
-      className="relative shrink-0 overflow-hidden rounded-2xl bg-slate-900 ring-1 ring-white/20"
-      style={{ width: CELL, height: CELL, boxShadow: FEATURED_SHADOW }}
+      style={{
+        width: `${CELL}px`,
+        height: `${CELL}px`,
+        minWidth: `${CELL}px`,
+        minHeight: `${CELL}px`,
+        flexShrink: 0,
+        borderRadius: "16px",
+        position: "relative",
+        overflow: "hidden",
+        boxShadow: FEATURED_SHADOW,
+        border: "1px solid rgba(255, 255, 255, 0.25)",
+        backgroundColor: "#0b101b",
+      }}
     >
       <img
         src={src}
         alt={alt ?? ""}
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[2] bg-white/20 mix-blend-saturation"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[3] blur-[4px] mix-blend-overlay"
         style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "center 30%",
+        }}
+      />
+      {/* desaturate via saturation blend */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
+          pointerEvents: "none",
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
+          mixBlendMode: "saturation",
+        }}
+      />
+      {/* diagonal gradient sheen */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 3,
+          pointerEvents: "none",
+          filter: "blur(4px)",
+          mixBlendMode: "overlay",
           background:
             "linear-gradient(220.99deg, rgba(14,165,233,0) 32%, rgb(56,189,248) 41%, rgb(173,177,255) 47%, rgba(45,212,191,0.57) 54%, rgba(45,212,191,0) 65%)",
         }}
@@ -67,6 +106,7 @@ function Featured({ src, alt }) {
   );
 }
 
+/* Per-character split */
 function Chars({ text, startIndex, staggerMs }) {
   let idx = startIndex;
   const words = text.split(" ");
@@ -74,7 +114,7 @@ function Chars({ text, startIndex, staggerMs }) {
     <>
       {words.map((word, wi) => {
         const wordSpan = (
-          <span key={wi} className="inline-block whitespace-nowrap">
+          <span key={wi} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
             {Array.from(word).map((ch, ci) => {
               const delay = idx * staggerMs;
               idx++;
@@ -162,6 +202,8 @@ export function ScrollReelTestimonials({
     }
   };
 
+  /* Middle column: 3 leading cells, then featured + 2 cells between
+   * each testimonial, then 3 trailing cells. */
   const middleItems = React.useMemo(() => {
     const items = [];
     for (let i = 0; i < 3; i++) items.push({ type: "cell" });
@@ -181,8 +223,13 @@ export function ScrollReelTestimonials({
   const sideY = -middleY;
 
   const colStyle = (y) => ({
+    display: "flex",
+    flexDirection: "column",
+    gap: `${GAP}px`,
+    flexShrink: 0,
     transform: `translateY(${y}px)`,
     transition: mounted ? `transform ${SLIDE_MS}ms ${EASE_INOUT}` : "none",
+    willChange: "transform",
   });
 
   const current = testimonials[displayIndex];
@@ -195,15 +242,39 @@ export function ScrollReelTestimonials({
       tabIndex={0}
       onKeyDown={onKeyDown}
       className={cn(
-        "scroll-reel-wrapper relative flex w-full max-w-[1060px] flex-col items-stretch gap-2.5 overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br from-white/[0.08] via-slate-950/80 to-sky-950/20 backdrop-blur-2xl shadow-[inset_0_1.5px_1.5px_0_rgba(255,255,255,0.35),0_20px_55px_rgba(0,0,0,0.55)] outline-none focus-visible:ring-2 focus-visible:ring-sky-400 md:min-h-[340px] md:flex-row",
+        "scroll-reel-wrapper",
         className
       )}
+      style={{
+        position: "relative",
+        display: "flex",
+        width: "100%",
+        maxWidth: "1060px",
+        flexDirection: "row",
+        alignItems: "stretch",
+        gap: "10px",
+        overflow: "hidden",
+        borderRadius: "32px",
+        border: "1px solid rgba(255, 255, 255, 0.16)",
+        borderTop: "1px solid rgba(255, 255, 255, 0.35)",
+        background: "radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 75%), linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(13, 17, 26, 0.8) 45%, rgba(18, 24, 36, 0.7) 85%, rgba(56, 189, 248, 0.04) 100%)",
+        backdropFilter: "blur(28px) saturate(200%)",
+        WebkitBackdropFilter: "blur(28px) saturate(200%)",
+        boxShadow: "inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4), 0 20px 55px rgba(0, 0, 0, 0.55)",
+        outline: "none",
+        minHeight: "340px",
+      }}
     >
       {/* Reel section */}
       <div
         aria-hidden="true"
-        className="relative h-56 w-full shrink-0 self-stretch overflow-hidden md:h-auto md:w-[380px]"
         style={{
+          position: "relative",
+          width: "380px",
+          height: "auto",
+          flexShrink: 0,
+          alignSelf: "stretch",
+          overflow: "hidden",
           WebkitMaskImage:
             "linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
           maskImage:
@@ -212,22 +283,25 @@ export function ScrollReelTestimonials({
           maskComposite: "intersect",
         }}
       >
-        <div className="absolute inset-0 flex items-center justify-center gap-2">
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: `${GAP}px`,
+          }}
+        >
           {/* Left column */}
-          <div
-            className="flex shrink-0 flex-col gap-2 will-change-transform motion-reduce:[transition:none!important]"
-            style={colStyle(sideY)}
-          >
+          <div style={colStyle(sideY)}>
             {Array.from({ length: sideCellCount }).map((_, i) => (
               <Cell key={i} />
             ))}
           </div>
 
           {/* Middle column */}
-          <div
-            className="flex shrink-0 flex-col gap-2 will-change-transform motion-reduce:[transition:none!important]"
-            style={colStyle(middleY)}
-          >
+          <div style={colStyle(middleY)}>
             {middleItems.map((item, i) =>
               item.type === "featured" ? (
                 <Featured
@@ -242,10 +316,7 @@ export function ScrollReelTestimonials({
           </div>
 
           {/* Right column */}
-          <div
-            className="flex shrink-0 flex-col gap-2 will-change-transform motion-reduce:[transition:none!important]"
-            style={colStyle(sideY)}
-          >
+          <div style={colStyle(sideY)}>
             {Array.from({ length: sideCellCount }).map((_, i) => (
               <Cell key={i} />
             ))}
@@ -254,10 +325,20 @@ export function ScrollReelTestimonials({
       </div>
 
       {/* Content section */}
-      <div className="flex min-w-0 flex-1 flex-col justify-between self-stretch px-6 py-8 md:py-10">
-        <div className="flex flex-col gap-3">
+      <div
+        style={{
+          display: "flex",
+          minWidth: 0,
+          flex: 1,
+          flexDirection: "column",
+          justifyContent: "space-between",
+          alignSelf: "stretch",
+          padding: "36px 32px 32px 24px",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <svg
-            className="block h-10 w-10 text-sky-400/40"
+            style={{ display: "block", width: "36px", height: "36px", color: "rgba(56, 189, 248, 0.4)" }}
             viewBox="0 0 24 24"
             fill="currentColor"
             aria-hidden="true"
@@ -267,31 +348,50 @@ export function ScrollReelTestimonials({
 
           {/* Text stage */}
           <div
-            className="relative w-full max-w-[440px] overflow-hidden"
+            style={{ position: "relative", width: "100%", maxWidth: "460px", overflow: "hidden" }}
             aria-live="polite"
           >
             <div
               aria-hidden="true"
-              className="invisible flex min-h-[140px] flex-col gap-4"
+              style={{
+                visibility: "hidden",
+                display: "flex",
+                minHeight: "130px",
+                flexDirection: "column",
+                gap: "16px",
+              }}
             >
-              <p className={QUOTE_CLASSES}>{current.quote}</p>
-              <p className={AUTHOR_CLASSES}>{current.author}</p>
+              <p style={{ margin: 0, fontSize: "20px", fontWeight: 600, lineHeight: 1.4, color: "#ffffff" }}>
+                "{current.quote}"
+              </p>
+              <p style={{ margin: 0, fontSize: "14px", fontWeight: 500, color: "#94a3b8" }}>
+                {current.author}
+              </p>
             </div>
             <div
               key={displayIndex}
-              className={cn(
-                "absolute inset-x-0 top-0 flex flex-col gap-4 will-change-[transform,opacity]",
-                exiting && "scroll-reel-exit"
-              )}
+              className={cn(exiting && "scroll-reel-exit")}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                willChange: "transform, opacity",
+              }}
             >
-              <p className={QUOTE_CLASSES}>
+              <p style={{ margin: 0, fontSize: "20px", fontWeight: 600, lineHeight: 1.4, color: "#ffffff" }}>
+                "
                 <Chars
                   text={current.quote}
                   startIndex={0}
                   staggerMs={charStaggerMs}
                 />
+                "
               </p>
-              <p className={AUTHOR_CLASSES}>
+              <p style={{ margin: 0, fontSize: "14px", fontWeight: 500, color: "#94a3b8" }}>
                 <Chars
                   text={current.author}
                   startIndex={current.quote.length + 6}
@@ -303,16 +403,28 @@ export function ScrollReelTestimonials({
         </div>
 
         {/* Controls */}
-        <div className="mt-6 flex items-center gap-2 md:mt-0">
+        <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
           <button
             type="button"
             onClick={() => paginate(-1)}
             disabled={index === 0}
             aria-label="Previous testimonial"
-            className="grid h-8 w-8 cursor-pointer place-items-center rounded-full border border-white/20 bg-white/5 p-0 text-white transition-[opacity,transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:enabled:bg-white/15 hover:enabled:scale-[1.08] active:enabled:scale-[0.94] disabled:cursor-default disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            style={{
+              display: "grid",
+              placeItems: "center",
+              width: "34px",
+              height: "34px",
+              borderRadius: "50%",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              background: "rgba(255, 255, 255, 0.06)",
+              color: "#ffffff",
+              cursor: index === 0 ? "default" : "pointer",
+              opacity: index === 0 ? 0.3 : 1,
+              transition: "all 0.2s ease",
+            }}
           >
             <svg
-              className="h-3.5 w-3.5 opacity-80"
+              style={{ width: "14px", height: "14px" }}
               viewBox="0 0 12 12"
               fill="none"
               stroke="currentColor"
@@ -328,10 +440,22 @@ export function ScrollReelTestimonials({
             onClick={() => paginate(1)}
             disabled={index === count - 1}
             aria-label="Next testimonial"
-            className="grid h-8 w-8 cursor-pointer place-items-center rounded-full border border-white/20 bg-white/5 p-0 text-white transition-[opacity,transform,background-color] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:enabled:bg-white/15 hover:enabled:scale-[1.08] active:enabled:scale-[0.94] disabled:cursor-default disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            style={{
+              display: "grid",
+              placeItems: "center",
+              width: "34px",
+              height: "34px",
+              borderRadius: "50%",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+              background: "rgba(255, 255, 255, 0.06)",
+              color: "#ffffff",
+              cursor: index === count - 1 ? "default" : "pointer",
+              opacity: index === count - 1 ? 0.3 : 1,
+              transition: "all 0.2s ease",
+            }}
           >
             <svg
-              className="h-3.5 w-3.5 opacity-80"
+              style={{ width: "14px", height: "14px" }}
               viewBox="0 0 12 12"
               fill="none"
               stroke="currentColor"
@@ -342,7 +466,7 @@ export function ScrollReelTestimonials({
               <path d="m4.5 2.5 4 3.5-4 3.5" />
             </svg>
           </button>
-          <span className="ml-2 text-xs font-semibold text-slate-400">
+          <span style={{ marginLeft: "6px", fontSize: "12px", fontWeight: 600, color: "#94a3b8" }}>
             {index + 1} / {count}
           </span>
         </div>
