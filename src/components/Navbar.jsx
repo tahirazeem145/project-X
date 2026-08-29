@@ -1,9 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
 import { Menu, X } from 'lucide-react';
 
 export default function Navbar({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Shrink navbar when scrolling past hero threshold (50px)
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
     { label: 'Why Us?', key: 'why-us' },
@@ -23,8 +39,8 @@ export default function Navbar({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab
   };
 
   return (
-    <header className="navbar-header">
-      <div className="navbar-container">
+    <header className={`navbar-header ${isScrolled ? 'header-scrolled' : ''}`}>
+      <div className={`navbar-container ${isScrolled ? 'navbar-shrunk' : ''}`}>
         {/* Left: Brand Logo */}
         <div className="navbar-brand">
           <Logo />
