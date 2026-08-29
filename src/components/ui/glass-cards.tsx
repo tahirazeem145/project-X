@@ -76,22 +76,23 @@ const StackingCardItem: React.FC<CardProps> = ({ card, index, totalCards }) => {
                 }}
                 className="stacked-glass-card"
             >
-                {/* Electric Border / Colored Tab Glow */}
+                {/* Subtle Refined Border Glow */}
                 <div
                     style={{
                         position: 'absolute',
-                        inset: '-3px',
-                        borderRadius: '29px',
-                        padding: '3px',
+                        inset: '-1px',
+                        borderRadius: '27px',
+                        padding: '1px',
                         background: `conic-gradient(
                             from 0deg,
                             transparent 0deg,
-                            ${card.color} 60deg,
-                            ${card.color.replace('0.8', '0.6')} 120deg,
+                            ${card.color.replace('0.8', '0.3')} 60deg,
+                            ${card.color.replace('0.8', '0.2')} 120deg,
                             transparent 180deg,
-                            ${card.color.replace('0.8', '0.4')} 240deg,
+                            ${card.color.replace('0.8', '0.15')} 240deg,
                             transparent 360deg
                         )`,
+                        opacity: 0.35,
                         zIndex: -1,
                     }}
                 />
