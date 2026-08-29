@@ -14,14 +14,14 @@ export default function Logo({ className = "" }) {
     >
       <img
         src={logoImg}
-        alt="gme Developers Logo"
+        alt="Jime Developers Logo"
         className="brand-logo-img"
         style={{
           height: '38px',
           width: 'auto',
           objectFit: 'contain',
           display: 'block',
-          filter: 'invert(1) brightness(1.25)',
+          filter: 'brightness(0) invert(1)',
         }}
       />
     </div>

@@ -7,16 +7,11 @@ import {
   Volume2,
   VolumeX,
   Heart,
-  ArrowUpRight,
-  Gamepad2,
-  Layers,
-  Flame,
-  Rocket
+  ArrowUpRight
 } from 'lucide-react';
 import './FooterGameSection.css';
 
 export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab }) {
-  const [activeGame, setActiveGame] = useState('brick'); // 'brick' | 'snake' | 'space'
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
@@ -95,35 +90,15 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
   // State Engine Ref for 60fps Loop
   const engineRef = useRef({
     running: false,
-    game: 'brick',
     width: 600,
     height: 380,
     mousePos: { x: 300, y: 340 },
     keys: {},
-
-    // Brick Breaker State
-    paddle: { x: 250, y: 350, width: 90, height: 12, speed: 8 },
-    balls: [{ x: 300, y: 330, vx: 4, vy: -4, radius: 6 }],
+    paddle: { x: 255, y: 350, width: 90, height: 12, speed: 8 },
+    balls: [{ x: 300, y: 335, vx: 4, vy: -4.5, radius: 6 }],
     bricks: [],
     powerups: [],
     particles: [],
-
-    // Snake State
-    snake: [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }],
-    snakeDir: { x: 1, y: 0 },
-    nextDir: { x: 1, y: 0 },
-    food: { x: 15, y: 10 },
-    snakeSpeed: 90,
-    lastSnakeStep: 0,
-    gridCols: 30,
-    gridRows: 19,
-
-    // Space State
-    player: { x: 300, y: 340, width: 32, height: 26 },
-    lasers: [],
-    enemies: [],
-    lastShot: 0,
-    enemySpawnTimer: 0,
   });
 
   // Init Bricks Helper
@@ -165,7 +140,6 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
   const handleStartGame = () => {
     const e = engineRef.current;
-    e.game = activeGame;
     e.running = true;
     setIsPlaying(true);
     setIsGameOver(false);
@@ -173,38 +147,11 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     setScore(0);
     setLives(3);
 
-    if (activeGame === 'brick') {
-      e.paddle = { x: 255, y: 350, width: 90, height: 12, speed: 8 };
-      e.balls = [{ x: 300, y: 335, vx: (Math.random() > 0.5 ? 4 : -4), vy: -4.5, radius: 6 }];
-      e.bricks = initBricks();
-      e.powerups = [];
-      e.particles = [];
-    } else if (activeGame === 'snake') {
-      e.snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-      e.snakeDir = { x: 1, y: 0 };
-      e.nextDir = { x: 1, y: 0 };
-      e.food = {
-        x: Math.floor(Math.random() * (e.gridCols - 2)) + 1,
-        y: Math.floor(Math.random() * (e.gridRows - 2)) + 1,
-      };
-      e.lastSnakeStep = Date.now();
-    } else if (activeGame === 'space') {
-      e.player = { x: 300, y: 340, width: 32, height: 26 };
-      e.lasers = [];
-      e.enemies = [];
-      e.particles = [];
-      e.enemySpawnTimer = 0;
-    }
-  };
-
-  const switchGame = (gameKey) => {
-    setActiveGame(gameKey);
-    setIsPlaying(false);
-    setIsGameOver(false);
-    setIsGameWon(false);
-    engineRef.current.running = false;
-    const saved = localStorage.getItem(`jime_game_${gameKey}_high`);
-    setHighScore(saved ? parseInt(saved, 10) : 0);
+    e.paddle = { x: 255, y: 350, width: 90, height: 12, speed: 8 };
+    e.balls = [{ x: 300, y: 335, vx: (Math.random() > 0.5 ? 4 : -4), vy: -4.5, radius: 6 }];
+    e.bricks = initBricks();
+    e.powerups = [];
+    e.particles = [];
   };
 
   useEffect(() => {
@@ -222,24 +169,6 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
     const handleKeyDown = (evt) => {
       e.keys[evt.code] = true;
-
-      // Snake Direction control
-      if (e.game === 'snake' && e.running) {
-        if ((evt.code === 'ArrowUp' || evt.code === 'KeyW') && e.snakeDir.y === 0) {
-          e.nextDir = { x: 0, y: -1 };
-          evt.preventDefault();
-        } else if ((evt.code === 'ArrowDown' || evt.code === 'KeyS') && e.snakeDir.y === 0) {
-          e.nextDir = { x: 0, y: 1 };
-          evt.preventDefault();
-        } else if ((evt.code === 'ArrowLeft' || evt.code === 'KeyA') && e.snakeDir.x === 0) {
-          e.nextDir = { x: -1, y: 0 };
-          evt.preventDefault();
-        } else if ((evt.code === 'ArrowRight' || evt.code === 'KeyD') && e.snakeDir.x === 0) {
-          e.nextDir = { x: 1, y: 0 };
-          evt.preventDefault();
-        }
-      }
-
       if (evt.code === 'Space' && e.running) {
         evt.preventDefault();
       }
@@ -307,328 +236,232 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
         ctx.stroke();
       }
 
-      // ==========================================
-      // 1. GAME: CYBER BRICK BREAKER
-      // ==========================================
-      if (e.game === 'brick') {
-        if (e.running) {
-          // Paddle position update with mouse or keys
-          if (e.keys['ArrowLeft'] || e.keys['KeyA']) {
-            e.paddle.x -= e.paddle.speed;
-          } else if (e.keys['ArrowRight'] || e.keys['KeyD']) {
-            e.paddle.x += e.paddle.speed;
-          } else {
-            e.paddle.x += (e.mousePos.x - e.paddle.width / 2 - e.paddle.x) * 0.25;
+      if (e.running) {
+        // Paddle position update with mouse or keys
+        if (e.keys['ArrowLeft'] || e.keys['KeyA']) {
+          e.paddle.x -= e.paddle.speed;
+        } else if (e.keys['ArrowRight'] || e.keys['KeyD']) {
+          e.paddle.x += e.paddle.speed;
+        } else {
+          e.paddle.x += (e.mousePos.x - e.paddle.width / 2 - e.paddle.x) * 0.25;
+        }
+        e.paddle.x = Math.max(10, Math.min(width - e.paddle.width - 10, e.paddle.x));
+
+        // Update Balls
+        for (let i = e.balls.length - 1; i >= 0; i--) {
+          const b = e.balls[i];
+          b.x += b.vx;
+          b.y += b.vy;
+
+          // Wall collisions
+          if (b.x - b.radius < 0) {
+            b.x = b.radius;
+            b.vx = Math.abs(b.vx);
+            playSound('bounce');
+          } else if (b.x + b.radius > width) {
+            b.x = width - b.radius;
+            b.vx = -Math.abs(b.vx);
+            playSound('bounce');
           }
-          e.paddle.x = Math.max(10, Math.min(width - e.paddle.width - 10, e.paddle.x));
+          if (b.y - b.radius < 0) {
+            b.y = b.radius;
+            b.vy = Math.abs(b.vy);
+            playSound('bounce');
+          }
 
-          // Update Balls
-          for (let i = e.balls.length - 1; i >= 0; i--) {
-            const b = e.balls[i];
-            b.x += b.vx;
-            b.y += b.vy;
+          // Paddle collision
+          if (
+            b.y + b.radius >= e.paddle.y &&
+            b.y - b.radius <= e.paddle.y + e.paddle.height &&
+            b.x >= e.paddle.x &&
+            b.x <= e.paddle.x + e.paddle.width &&
+            b.vy > 0
+          ) {
+            const hitOffset = (b.x - (e.paddle.x + e.paddle.width / 2)) / (e.paddle.width / 2);
+            b.vx = hitOffset * 5.5;
+            b.vy = -Math.abs(b.vy);
+            playSound('bounce');
+          }
 
-            // Wall collisions
-            if (b.x - b.radius < 0) {
-              b.x = b.radius;
-              b.vx = Math.abs(b.vx);
-              playSound('bounce');
-            } else if (b.x + b.radius > width) {
-              b.x = width - b.radius;
-              b.vx = -Math.abs(b.vx);
-              playSound('bounce');
-            }
-            if (b.y - b.radius < 0) {
-              b.y = b.radius;
-              b.vy = Math.abs(b.vy);
-              playSound('bounce');
-            }
+          // Brick collisions
+          let activeBricksCount = 0;
+          for (let br of e.bricks) {
+            if (!br.alive) continue;
+            activeBricksCount++;
 
-            // Paddle collision
             if (
-              b.y + b.radius >= e.paddle.y &&
-              b.y - b.radius <= e.paddle.y + e.paddle.height &&
-              b.x >= e.paddle.x &&
-              b.x <= e.paddle.x + e.paddle.width &&
-              b.vy > 0
+              b.x + b.radius >= br.x &&
+              b.x - b.radius <= br.x + br.width &&
+              b.y + b.radius >= br.y &&
+              b.y - b.radius <= br.y + br.height
             ) {
-              // Hit angle based on hit position
-              const hitOffset = (b.x - (e.paddle.x + e.paddle.width / 2)) / (e.paddle.width / 2);
-              b.vx = hitOffset * 5.5;
-              b.vy = -Math.abs(b.vy);
-              playSound('bounce');
-            }
+              br.alive = false;
+              b.vy = -b.vy;
+              createExplosion(br.x + br.width / 2, br.y + br.height / 2, br.color);
+              playSound('brick');
 
-            // Brick collisions
-            let activeBricksCount = 0;
-            for (let br of e.bricks) {
-              if (!br.alive) continue;
-              activeBricksCount++;
-
-              if (
-                b.x + b.radius >= br.x &&
-                b.x - b.radius <= br.x + br.width &&
-                b.y + b.radius >= br.y &&
-                b.y - b.radius <= br.y + br.height
-              ) {
-                br.alive = false;
-                b.vy = -b.vy;
-                createExplosion(br.x + br.width / 2, br.y + br.height / 2, br.color);
-                playSound('brick');
-
-                // Spawn random power-up
-                if (Math.random() < 0.22) {
-                  e.powerups.push({
-                    x: br.x + br.width / 2,
-                    y: br.y + br.height / 2,
-                    type: Math.random() > 0.5 ? 'wide' : 'multi',
-                    vy: 2.2,
-                  });
-                }
-
-                setScore((prev) => {
-                  const newScore = prev + br.points;
-                  if (newScore > highScore) {
-                    setHighScore(newScore);
-                    try {
-                      localStorage.setItem('jime_game_brick_high', newScore.toString());
-                    } catch {}
-                  }
-                  if (newScore >= 400 && !unlockedReward) {
-                    setUnlockedReward(true);
-                    playSound('win');
-                  }
-                  return newScore;
+              // Spawn random power-up
+              if (Math.random() < 0.22) {
+                e.powerups.push({
+                  x: br.x + br.width / 2,
+                  y: br.y + br.height / 2,
+                  type: Math.random() > 0.5 ? 'wide' : 'multi',
+                  vy: 2.2,
                 });
-                break;
               }
-            }
 
-            // Check Win Condition
-            if (activeBricksCount === 0) {
+              setScore((prev) => {
+                const newScore = prev + br.points;
+                if (newScore > highScore) {
+                  setHighScore(newScore);
+                  try {
+                    localStorage.setItem('jime_game_brick_high', newScore.toString());
+                  } catch {}
+                }
+                if (newScore >= 400 && !unlockedReward) {
+                  setUnlockedReward(true);
+                  playSound('win');
+                }
+                return newScore;
+              });
+              break;
+            }
+          }
+
+          // Check Win Condition
+          if (activeBricksCount === 0) {
+            e.running = false;
+            setIsPlaying(false);
+            setIsGameWon(true);
+            playSound('win');
+          }
+
+          // Ball drops below paddle
+          if (b.y > height + 20) {
+            e.balls.splice(i, 1);
+          }
+        }
+
+        // If all balls lost
+        if (e.balls.length === 0) {
+          setLives((prevLives) => {
+            const newLives = prevLives - 1;
+            if (newLives > 0) {
+              e.balls.push({
+                x: e.paddle.x + e.paddle.width / 2,
+                y: e.paddle.y - 15,
+                vx: (Math.random() > 0.5 ? 4 : -4),
+                vy: -4.5,
+                radius: 6,
+              });
+              playSound('hit');
+            } else {
               e.running = false;
               setIsPlaying(false);
-              setIsGameWon(true);
-              playSound('win');
+              setIsGameOver(true);
+              playSound('hit');
             }
+            return newLives;
+          });
+        }
 
-            // Ball drops below paddle
-            if (b.y > height + 20) {
-              e.balls.splice(i, 1);
-            }
-          }
+        // Update & Draw Power-ups
+        for (let pIdx = e.powerups.length - 1; pIdx >= 0; pIdx--) {
+          const p = e.powerups[pIdx];
+          p.y += p.vy;
 
-          // If all balls lost
-          if (e.balls.length === 0) {
-            setLives((prevLives) => {
-              const newLives = prevLives - 1;
-              if (newLives > 0) {
+          if (
+            p.y >= e.paddle.y &&
+            p.y <= e.paddle.y + e.paddle.height &&
+            p.x >= e.paddle.x &&
+            p.x <= e.paddle.x + e.paddle.width
+          ) {
+            playSound('powerup');
+            if (p.type === 'wide') {
+              e.paddle.width = Math.min(140, e.paddle.width + 30);
+            } else if (p.type === 'multi') {
+              if (e.balls[0]) {
                 e.balls.push({
-                  x: e.paddle.x + e.paddle.width / 2,
-                  y: e.paddle.y - 15,
-                  vx: (Math.random() > 0.5 ? 4 : -4),
-                  vy: -4.5,
+                  x: e.balls[0].x,
+                  y: e.balls[0].y,
+                  vx: -3.5,
+                  vy: -4,
                   radius: 6,
                 });
-                playSound('hit');
-              } else {
-                e.running = false;
-                setIsPlaying(false);
-                setIsGameOver(true);
-                playSound('hit');
+                e.balls.push({
+                  x: e.balls[0].x,
+                  y: e.balls[0].y,
+                  vx: 3.5,
+                  vy: -4,
+                  radius: 6,
+                });
               }
-              return newLives;
-            });
+            }
+            e.powerups.splice(pIdx, 1);
+            continue;
           }
 
-          // Update & Draw Power-ups
-          for (let pIdx = e.powerups.length - 1; pIdx >= 0; pIdx--) {
-            const p = e.powerups[pIdx];
-            p.y += p.vy;
-
-            // Catch power-up with paddle
-            if (
-              p.y >= e.paddle.y &&
-              p.y <= e.paddle.y + e.paddle.height &&
-              p.x >= e.paddle.x &&
-              p.x <= e.paddle.x + e.paddle.width
-            ) {
-              playSound('powerup');
-              if (p.type === 'wide') {
-                e.paddle.width = Math.min(140, e.paddle.width + 30);
-              } else if (p.type === 'multi') {
-                if (e.balls[0]) {
-                  e.balls.push({
-                    x: e.balls[0].x,
-                    y: e.balls[0].y,
-                    vx: -3.5,
-                    vy: -4,
-                    radius: 6,
-                  });
-                  e.balls.push({
-                    x: e.balls[0].x,
-                    y: e.balls[0].y,
-                    vx: 3.5,
-                    vy: -4,
-                    radius: 6,
-                  });
-                }
-              }
-              e.powerups.splice(pIdx, 1);
-              continue;
-            }
-
-            if (p.y > height + 20) {
-              e.powerups.splice(pIdx, 1);
-              continue;
-            }
-
-            // Draw Power-Up pill
-            ctx.save();
-            ctx.fillStyle = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
-            ctx.shadowColor = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
-            ctx.shadowBlur = 8;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+          if (p.y > height + 20) {
+            e.powerups.splice(pIdx, 1);
+            continue;
           }
-        }
 
-        // Render Bricks
-        for (let br of e.bricks) {
-          if (!br.alive) continue;
+          // Draw Power-Up pill
           ctx.save();
-          ctx.fillStyle = br.color;
-          ctx.shadowColor = br.color;
-          ctx.shadowBlur = 6;
+          ctx.fillStyle = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
+          ctx.shadowColor = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
+          ctx.shadowBlur = 8;
           ctx.beginPath();
-          ctx.roundRect(br.x, br.y, br.width, br.height, 4);
-          ctx.fill();
-
-          // Specular top highlight on brick
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-          ctx.fillRect(br.x + 2, br.y + 2, br.width - 4, 3);
-          ctx.restore();
-        }
-
-        // Render Paddle
-        ctx.save();
-        ctx.fillStyle = '#00b4d8';
-        ctx.shadowColor = '#00b4d8';
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.roundRect(e.paddle.x, e.paddle.y, e.paddle.width, e.paddle.height, 6);
-        ctx.fill();
-
-        // Paddle inner white shine
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(e.paddle.x + 8, e.paddle.y + 2, e.paddle.width - 16, 2);
-        ctx.restore();
-
-        // Render Balls
-        for (let b of e.balls) {
-          ctx.save();
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#00b4d8';
-          ctx.shadowBlur = 14;
-          ctx.beginPath();
-          ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+          ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         }
       }
 
-      // ==========================================
-      // 2. GAME: QUANTUM NEON SNAKE
-      // ==========================================
-      else if (e.game === 'snake') {
-        const cellSize = 20;
-
-        if (e.running) {
-          const now = Date.now();
-          if (now - e.lastSnakeStep > e.snakeSpeed) {
-            e.snakeDir = e.nextDir;
-            const head = {
-              x: e.snake[0].x + e.snakeDir.x,
-              y: e.snake[0].y + e.snakeDir.y,
-            };
-
-            // Wall wrap-around
-            if (head.x < 0) head.x = e.gridCols - 1;
-            if (head.x >= e.gridCols) head.x = 0;
-            if (head.y < 0) head.y = e.gridRows - 1;
-            if (head.y >= e.gridRows) head.y = 0;
-
-            // Self collision check
-            for (let segment of e.snake) {
-              if (segment.x === head.x && segment.y === head.y) {
-                e.running = false;
-                setIsPlaying(false);
-                setIsGameOver(true);
-                playSound('hit');
-                break;
-              }
-            }
-
-            if (e.running) {
-              e.snake.unshift(head);
-
-              // Check Food Collision
-              if (head.x === e.food.x && head.y === e.food.y) {
-                playSound('brick');
-                createExplosion(head.x * cellSize + 10, head.y * cellSize + 10, '#00b4d8');
-                setScore((prev) => {
-                  const newScore = prev + 50;
-                  if (newScore > highScore) {
-                    setHighScore(newScore);
-                    try {
-                      localStorage.setItem('jime_game_snake_high', newScore.toString());
-                    } catch {}
-                  }
-                  if (newScore >= 350 && !unlockedReward) {
-                    setUnlockedReward(true);
-                    playSound('win');
-                  }
-                  return newScore;
-                });
-                e.food = {
-                  x: Math.floor(Math.random() * (e.gridCols - 2)) + 1,
-                  y: Math.floor(Math.random() * (e.gridRows - 2)) + 1,
-                };
-              } else {
-                e.snake.pop();
-              }
-              e.lastSnakeStep = now;
-            }
-          }
-        }
-
-        // Draw Food
+      // Render Bricks
+      for (let br of e.bricks) {
+        if (!br.alive) continue;
         ctx.save();
-        ctx.fillStyle = '#00b4d8';
+        ctx.fillStyle = br.color;
+        ctx.shadowColor = br.color;
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.roundRect(br.x, br.y, br.width, br.height, 4);
+        ctx.fill();
+
+        // Specular top highlight on brick
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.fillRect(br.x + 2, br.y + 2, br.width - 4, 3);
+        ctx.restore();
+      }
+
+      // Render Paddle
+      ctx.save();
+      ctx.fillStyle = '#00b4d8';
+      ctx.shadowColor = '#00b4d8';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.roundRect(e.paddle.x, e.paddle.y, e.paddle.width, e.paddle.height, 6);
+      ctx.fill();
+
+      // Paddle inner white shine
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(e.paddle.x + 8, e.paddle.y + 2, e.paddle.width - 16, 2);
+      ctx.restore();
+
+      // Render Balls
+      for (let b of e.balls) {
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#00b4d8';
         ctx.shadowBlur = 14;
         ctx.beginPath();
-        ctx.arc(e.food.x * cellSize + 10, e.food.y * cellSize + 10, 7, 0, Math.PI * 2);
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-
-        // Draw Snake
-        for (let i = 0; i < e.snake.length; i++) {
-          const seg = e.snake[i];
-          ctx.save();
-          ctx.fillStyle = i === 0 ? '#ffffff' : `rgba(0, 180, 216, ${Math.max(0.3, 1 - i / e.snake.length)})`;
-          ctx.shadowColor = '#00b4d8';
-          ctx.shadowBlur = i === 0 ? 12 : 6;
-          ctx.beginPath();
-          ctx.roundRect(seg.x * cellSize + 2, seg.y * cellSize + 2, cellSize - 4, cellSize - 4, 4);
-          ctx.fill();
-          ctx.restore();
-        }
       }
 
-      // Render Particles across all games
+      // Render Particles
       for (let i = e.particles.length - 1; i >= 0; i--) {
         const p = e.particles[i];
         p.x += p.vx;
@@ -660,12 +493,12 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       canvas.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(animationId);
     };
-  }, [soundEnabled, activeGame, highScore, unlockedReward]);
+  }, [soundEnabled, highScore, unlockedReward]);
 
   return (
     <footer className="footer-section">
       <div className="footer-container">
-        {/* Cyber Arcade Mini-Game Section */}
+        {/* Cyber Brick Breaker Arcade Card */}
         <div className="footer-game-card">
           <div className="game-card-header">
             <div className="game-header-left">
@@ -673,41 +506,14 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 <Sparkles size={13} />
                 <span>CYBER ARCADE EASTER EGG</span>
               </span>
-              <h3 className="game-title">
-                {activeGame === 'brick'
-                  ? '⚡ Cyber Brick Breaker'
-                  : activeGame === 'snake'
-                  ? '🐍 Quantum Neon Snake'
-                  : '🚀 Codebase Defender'}
-              </h3>
+              <h3 className="game-title">⚡ Cyber Brick Breaker</h3>
               <p className="game-desc">
-                {activeGame === 'brick'
-                  ? 'Smash glowing data blocks! Score 400+ to unlock a 10% project discount code.'
-                  : 'Navigate the quantum data grid! Eat nodes and avoid crashing.'}
+                Smash glowing data blocks! Score 400+ to unlock an exclusive 10% project discount code.
               </p>
             </div>
 
-            {/* Game Selector Tabs & Controls */}
+            {/* Controls */}
             <div className="game-header-controls">
-              <div className="game-tabs-group">
-                <button
-                  type="button"
-                  className={`game-tab-btn ${activeGame === 'brick' ? 'game-tab-active' : ''}`}
-                  onClick={() => switchGame('brick')}
-                >
-                  <Layers size={13} />
-                  <span>Bricks</span>
-                </button>
-                <button
-                  type="button"
-                  className={`game-tab-btn ${activeGame === 'snake' ? 'game-tab-active' : ''}`}
-                  onClick={() => switchGame('snake')}
-                >
-                  <Flame size={13} />
-                  <span>Snake</span>
-                </button>
-              </div>
-
               <button
                 type="button"
                 className="game-sound-btn"
@@ -736,34 +542,24 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                   <span className="hud-value">{score}</span>
                 </div>
 
-                {activeGame === 'brick' && (
-                  <div className="hud-lives">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                      <Heart
-                        key={idx}
-                        size={16}
-                        className={idx < lives ? 'heart-alive' : 'heart-dead'}
-                      />
-                    ))}
-                  </div>
-                )}
+                <div className="hud-lives">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <Heart
+                      key={idx}
+                      size={16}
+                      className={idx < lives ? 'heart-alive' : 'heart-dead'}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Start Screen Overlay */}
             {!isPlaying && !isGameOver && !isGameWon && (
               <div className="game-overlay">
-                <div className="overlay-badge">
-                  {activeGame === 'brick' ? 'NEON BREAKOUT' : 'QUANTUM GRID'}
-                </div>
-                <h4>
-                  {activeGame === 'brick' ? 'Smash The Codebase' : 'Feed The Quantum Snake'}
-                </h4>
-                <p>
-                  {activeGame === 'brick'
-                    ? 'Move mouse or drag to aim paddle · Catch falling power-ups!'
-                    : 'Use Arrow Keys or WASD to turn · Do not crash into yourself!'}
-                </p>
+                <div className="overlay-badge">NEON BREAKOUT</div>
+                <h4>Smash The Codebase</h4>
+                <p>Move mouse or drag finger to guide the paddle · Catch falling power-ups!</p>
                 <button type="button" className="game-play-btn" onClick={handleStartGame}>
                   <Play size={16} fill="currentColor" />
                   <span>Start Game</span>
@@ -771,19 +567,19 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
               </div>
             )}
 
-            {/* Game Over Screen Overlay */}
+            {/* Game Over / Win Screen Overlay */}
             {(isGameOver || isGameWon) && (
               <div className="game-overlay">
                 <div className={`overlay-badge ${isGameWon ? 'game-won-badge' : 'game-over-badge'}`}>
                   {isGameWon ? 'STAGE CLEARED!' : 'GAME OVER'}
                 </div>
                 <h4>Final Score: {score}</h4>
-                {score >= 350 ? (
+                {score >= 400 ? (
                   <p className="game-reward-unlocked">
                     🎉 10% Discount Unlocked! Code: <strong>BUGBLASTER10</strong>
                   </p>
                 ) : (
-                  <p>Reach 350+ points to unlock your exclusive 10% project discount!</p>
+                  <p>Reach 400+ points to unlock your exclusive 10% project discount!</p>
                 )}
                 <button type="button" className="game-play-btn" onClick={handleStartGame}>
                   <RotateCcw size={16} />
@@ -815,57 +611,95 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           )}
         </div>
 
-        {/* Global Footer Navigation & Brand Section */}
+        {/* Global Footer Navigation & Brand Section matching reference design */}
         <div className="footer-main-grid">
-          {/* Brand Info */}
+          {/* Column 1: Brand & Info */}
           <div className="footer-brand-col">
             <div className="footer-logo-row">
-              <img src="/logo.png" alt="Company Logo" className="footer-logo-img" />
-              <span className="footer-brand-name">Project-X Studio</span>
+              <img src="/logo.png" alt="Jime Developers Logo" className="footer-logo-img" />
+              <span className="footer-brand-name">Jime <span className="footer-brand-sub">Developers</span></span>
             </div>
-            <p className="footer-tagline">
-              Crafting state-of-the-art web applications, AI dashboards, and digital experiences with speed, precision, and zero fluff.
+            <p className="footer-description">
+              A web development studio building websites and apps for founders and small businesses. Based in Tamil Nadu, working with clients across India and Malaysia.
             </p>
-            <div className="footer-system-status">
-              <span className="status-indicator-dot" />
-              <span>All Systems Operational (99.9% Uptime)</span>
+            <div className="footer-social-row">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-icon"
+                aria-label="Instagram"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                </svg>
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-icon"
+                aria-label="LinkedIn"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                  <rect width="4" height="12" x="2" y="9"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+              </a>
             </div>
           </div>
 
-          {/* Quick Links Column */}
+          {/* Column 2: SERVICES */}
           <div className="footer-links-col">
-            <h4 className="footer-col-title">Navigation</h4>
+            <h4 className="footer-col-title">SERVICES</h4>
             <ul className="footer-links-list">
-              <li><a href="#work">Our Work</a></li>
-              <li><a href="#why-us">Why Us</a></li>
-              <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="#faq">FAQ</a></li>
-              <li><a href="#blog">Blog Guides</a></li>
+              <li><a href="#work">Web Development</a></li>
+              <li><a href="#work">E-commerce Development</a></li>
+              <li><a href="#work">Mobile App Development</a></li>
+              <li><a href="#work">Web App & SaaS</a></li>
             </ul>
           </div>
 
-          {/* Services Column */}
+          {/* Column 3: COMPANY */}
           <div className="footer-links-col">
-            <h4 className="footer-col-title">Services</h4>
-            <ul className="footer-links-list">
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); onOpenBookCall(); }}>Custom Web Apps</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); onOpenBookCall(); }}>SaaS Platforms</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); onOpenBookCall(); }}>AI & Deep Learning</a></li>
-              <li><a href="#contact" onClick={(e) => { e.preventDefault(); onOpenBookCall(); }}>UI/UX Liquid Design</a></li>
-            </ul>
-          </div>
-
-          {/* Verification & Trust Column */}
-          <div className="footer-links-col">
-            <h4 className="footer-col-title">Trust & Security</h4>
+            <h4 className="footer-col-title">COMPANY</h4>
             <ul className="footer-links-list">
               <li>
                 <button
                   type="button"
                   className="footer-link-button"
-                  onClick={onOpenVerifyCert}
+                  onClick={() => onOpenInfoTab && onOpenInfoTab('why-us')}
                 >
-                  Verify Certificate
+                  About Us
+                </button>
+              </li>
+              <li><a href="#blog">Blog</a></li>
+              <li>
+                <button
+                  type="button"
+                  className="footer-link-button"
+                  onClick={onOpenBookCall}
+                >
+                  Contact
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4: LEGAL */}
+          <div className="footer-links-col">
+            <h4 className="footer-col-title">LEGAL</h4>
+            <ul className="footer-links-list">
+              <li>
+                <button
+                  type="button"
+                  className="footer-link-button"
+                  onClick={() => onOpenInfoTab && onOpenInfoTab('services')}
+                >
+                  Privacy Policy
                 </button>
               </li>
               <li>
@@ -874,16 +708,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                   className="footer-link-button"
                   onClick={() => onOpenInfoTab && onOpenInfoTab('pricing')}
                 >
-                  Fixed Pricing Terms
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="footer-link-button"
-                  onClick={() => onOpenInfoTab && onOpenInfoTab('services')}
-                >
-                  Security & NDA
+                  Terms of Service
                 </button>
               </li>
             </ul>
@@ -893,26 +718,8 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
         {/* Footer Bottom Bar */}
         <div className="footer-bottom-bar">
           <p className="footer-copyright">
-            © {new Date().getFullYear()} Project-X Studio. All rights reserved. Built with precision and liquid glass aesthetics.
+            © 2026 Jime Developers. All rights reserved.
           </p>
-
-          <div className="footer-bottom-actions">
-            <button
-              type="button"
-              className="footer-legal-btn"
-              onClick={() => onOpenInfoTab && onOpenInfoTab('services')}
-            >
-              Privacy Policy
-            </button>
-            <span className="footer-divider">·</span>
-            <button
-              type="button"
-              className="footer-legal-btn"
-              onClick={() => onOpenInfoTab && onOpenInfoTab('pricing')}
-            >
-              Terms of Service
-            </button>
-          </div>
         </div>
       </div>
     </footer>
