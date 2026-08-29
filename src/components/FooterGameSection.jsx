@@ -149,17 +149,17 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     let animationId;
 
     let width = (canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth);
-    const height = (canvas.height = 240);
-    const groundY = height - 24;
+    const height = (canvas.height = 280);
+    const groundY = 215;
 
     const s = runnerStateRef.current;
     s.player.groundY = groundY - s.player.height;
     s.player.y = s.player.groundY;
 
     // Background floating stars
-    s.stars = Array.from({ length: 35 }, () => ({
+    s.stars = Array.from({ length: 40 }, () => ({
       x: Math.random() * width,
-      y: Math.random() * (height - 50),
+      y: Math.random() * (height - 80),
       size: Math.random() * 1.5 + 0.5,
       alpha: Math.random() * 0.6 + 0.2,
       speed: Math.random() * 0.4 + 0.1,
@@ -169,7 +169,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       if (canvas.parentElement) {
         width = canvas.width = canvas.parentElement.clientWidth;
       }
-      s.player.groundY = height - 24 - s.player.height;
+      s.player.groundY = groundY - s.player.height;
       if (s.player.isGrounded) {
         s.player.y = s.player.groundY;
       }
