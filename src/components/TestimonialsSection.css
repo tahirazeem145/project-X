@@ -234,6 +234,16 @@
   border-radius: 9999px;
 }
 
+.testimonial-project-pill.google-verified-pill {
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 .project-check-icon {
   color: #38bdf8;
 }
