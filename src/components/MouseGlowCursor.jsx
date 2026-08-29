@@ -44,10 +44,10 @@ export default function MouseGlowCursor() {
         cursor.x += (mouse.x - cursor.x) * 0.35;
         cursor.y += (mouse.y - cursor.y) * 0.35;
 
-        const glowRadius = 180;
+        const glowRadius = 100;
 
         ctx.save();
-        // Create soft diffused radial electric blue glow around mouse
+        // Create subtle diffused radial electric blue glow around mouse
         const gradient = ctx.createRadialGradient(
           cursor.x,
           cursor.y,
@@ -56,9 +56,9 @@ export default function MouseGlowCursor() {
           cursor.y,
           glowRadius
         );
-        gradient.addColorStop(0, 'rgba(0, 180, 216, 0.26)');
-        gradient.addColorStop(0.28, 'rgba(0, 148, 232, 0.12)');
-        gradient.addColorStop(0.58, 'rgba(23, 195, 178, 0.04)');
+        gradient.addColorStop(0, 'rgba(0, 180, 216, 0.10)');
+        gradient.addColorStop(0.35, 'rgba(0, 148, 232, 0.04)');
+        gradient.addColorStop(0.7, 'rgba(23, 195, 178, 0.01)');
         gradient.addColorStop(1, 'rgba(0, 180, 216, 0)');
 
         ctx.fillStyle = gradient;
