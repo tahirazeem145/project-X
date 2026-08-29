@@ -1,425 +1,199 @@
-/* Footer Game Section & Global Footer Styles */
+/* Footer Game Section matching exact reference design */
 .footer-section {
   position: relative;
   width: 100%;
-  padding: 40px 20px 60px;
+  padding: 0 0 60px 0;
   background: transparent;
   z-index: 10;
-}
-
-.footer-container {
-  width: 80%;
-  max-width: 1240px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 64px;
-}
-
-/* Retro-Cyber Mini Game Card */
-.footer-game-card {
-  position: relative;
   overflow: hidden;
-  border-radius: 32px;
-  background: 
-    radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 45%, transparent 75%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(10, 18, 26, 0.9) 45%, rgba(13, 22, 32, 0.82) 85%, rgba(0, 180, 216, 0.03) 100%);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-top: 1px solid rgba(255, 255, 255, 0.32);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.35),
-    0 24px 60px rgba(0, 0, 0, 0.65);
-  padding: 36px 36px 32px;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
-.footer-game-card:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-  border-top-color: rgba(255, 255, 255, 0.55);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.5),
-    0 28px 70px rgba(0, 0, 0, 0.72),
-    0 0 18px rgba(0, 180, 216, 0.08);
-}
-
-.game-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  gap: 20px;
-}
-
-.game-header-left {
-  text-align: left;
-}
-
-.game-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #00b4d8;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.game-title {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 26px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.6px;
-  margin: 0 0 6px 0;
-}
-
-.game-desc {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 14.5px;
-  color: #94a3b8;
-  margin: 0;
-  max-width: 540px;
-}
-
-.game-header-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.game-tabs-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 4px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.game-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  background: transparent;
-  border: none;
-  color: #94a3b8;
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  outline: none;
-}
-
-.game-tab-btn:hover {
-  color: #ffffff;
-}
-
-.game-tab-active {
-  background: rgba(0, 180, 216, 0.18);
-  color: #00f0ff !important;
-  border: 1px solid rgba(0, 180, 216, 0.4);
-  box-shadow: 0 0 12px rgba(0, 180, 216, 0.25);
-}
-
-.game-won-badge {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.4);
-}
-
-.game-sound-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  outline: none;
-}
-
-.game-sound-btn:hover {
-  background: rgba(0, 180, 216, 0.15);
-  border-color: rgba(0, 180, 216, 0.4);
-  color: #00b4d8;
-}
-
-.game-stat-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  background: rgba(0, 180, 216, 0.12);
-  border: 1px solid rgba(0, 180, 216, 0.3);
-  color: #00b4d8;
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.trophy-icon {
-  color: #ffb703;
-}
-
-/* Canvas Wrapper */
-.game-canvas-wrapper {
+/* 8-Bit Retro Runner Game Full Width Banner */
+.retro-runner-banner {
   position: relative;
   width: 100%;
-  height: 380px;
-  background: #030910;
-  border-radius: 20px;
+  height: 240px;
+  background: #080c12;
+  margin-bottom: 60px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+  user-select: none;
+  cursor: pointer;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.game-canvas {
+.retro-runner-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  cursor: crosshair;
 }
 
-/* Game Live HUD */
-.game-hud {
+/* Overlay Content layer above canvas */
+.retro-runner-overlay {
   position: absolute;
-  top: 16px;
-  left: 20px;
-  right: 20px;
+  inset: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  padding: 36px 6% 0;
   pointer-events: none;
   z-index: 5;
 }
 
-.hud-score {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: 1px solid rgba(0, 180, 216, 0.3);
-}
-
-.hud-label {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 1.5px;
-}
-
-.hud-value {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 16px;
-  font-weight: 800;
-  color: #00f0ff;
-}
-
-.hud-lives {
-  display: flex;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  padding: 6px 12px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.heart-alive {
-  color: #ff3366;
-  fill: #ff3366;
-}
-
-.heart-dead {
-  color: #334155;
-}
-
-/* Start / Game Over Overlay */
-.game-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(3, 9, 16, 0.85);
-  backdrop-filter: blur(10px);
+/* Left Column: Watermark Title */
+.runner-left-col {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  animation: gameOverlayFade 0.3s ease;
-  padding: 24px;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
+  pointer-events: auto;
 }
 
-@keyframes gameOverlayFade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.overlay-badge {
+.runner-brand-watermark {
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 44px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.12);
   letter-spacing: 2px;
-  color: #00b4d8;
-  background: rgba(0, 180, 216, 0.14);
-  border: 1px solid rgba(0, 180, 216, 0.4);
-  padding: 4px 14px;
-  border-radius: 9999px;
-  margin-bottom: 14px;
-}
-
-.game-over-badge {
-  color: #ff3366;
-  background: rgba(255, 51, 102, 0.14);
-  border-color: rgba(255, 51, 102, 0.4);
-}
-
-.game-overlay h4 {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 28px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.6px;
   margin: 0 0 8px 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.game-overlay p {
+.runner-created-by {
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 14px;
-  color: #94a3b8;
-  margin: 0 0 20px 0;
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
 }
 
-.game-reward-unlocked {
-  color: #10b981 !important;
+.runner-created-by strong {
+  color: #94a3b8;
   font-weight: 600;
 }
 
-.game-play-btn {
-  display: inline-flex;
+/* Center Column: 8-Bit Pixel Score Counter */
+.runner-center-col {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px 28px;
-  border-radius: 9999px;
-  background: linear-gradient(135deg, #0094e8 0%, #00b4d8 100%);
-  color: #ffffff;
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 14.5px;
-  font-weight: 700;
-  border: none;
+  text-align: center;
+  pointer-events: auto;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(0, 180, 216, 0.4);
-  transition: all 0.25s ease;
 }
 
-.game-play-btn:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 0 30px rgba(0, 180, 216, 0.6);
-}
-
-/* Discount Banner */
-.game-discount-banner {
-  margin-top: 20px;
-  padding: 16px 20px;
-  border-radius: 18px;
-  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(0, 180, 216, 0.12) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.35);
+.runner-score-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  animation: discountSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes discountSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.discount-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-align: left;
-}
-
-.discount-icon {
-  font-size: 24px;
-}
-
-.discount-left strong {
-  display: block;
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 14px;
-  color: #34d399;
-}
-
-.discount-left span {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 13px;
-  color: #cbd5e1;
-}
-
-.discount-claim-btn {
-  display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
-  padding: 9px 18px;
-  border-radius: 9999px;
-  background: #34d399;
-  color: #064e3b;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.runner-cross-symbol {
+  font-size: 26px;
+  color: #94a3b8;
+  letter-spacing: -2px;
+}
+
+.runner-score-num {
+  font-size: 40px;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.5);
+}
+
+.runner-instructions {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+/* Right Column: STOP/PLAY Game & Social Links */
+.runner-right-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  pointer-events: auto;
+}
+
+.runner-bet-box {
+  margin-bottom: 24px;
+}
+
+.runner-stop-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+.runner-stop-btn u {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.runner-stop-btn:hover {
+  color: #00b4d8;
+}
+
+.runner-bet-title {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  margin: 2px 0 0 0;
+}
+
+.runner-social-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
   font-size: 13px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  white-space: nowrap;
 }
 
-.discount-claim-btn:hover {
-  background: #10b981;
-  color: #ffffff;
-  transform: translateY(-2px);
+.runner-social-item {
+  color: #8da4be;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
-/* Footer Main Grid matching reference screenshot */
+.runner-social-item:hover {
+  color: #00b4d8;
+}
+
+.runner-social-pipe {
+  color: #334155;
+}
+
+/* Main Studio Navigation Footer */
+.footer-container {
+  width: 80%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
 .footer-main-grid {
   display: grid;
   grid-template-columns: 2.2fr 1.2fr 1fr 1fr;
   gap: 48px;
   text-align: left;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 56px;
+  padding-top: 10px;
 }
 
 .footer-brand-col {
@@ -443,15 +217,6 @@
   filter: brightness(0) invert(1);
 }
 
-.footer-brand-name {
-  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 22px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.5px;
-  display: none; /* Logo image contains the full typography */
-}
-
 .footer-description {
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
   font-size: 15px;
@@ -461,7 +226,7 @@
   font-weight: 400;
 }
 
-/* Social Icons Row */
+/* Social Icons */
 .footer-social-row {
   display: flex;
   align-items: center;
@@ -546,6 +311,7 @@
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
   font-size: 13.5px;
   color: #5d758e;
+  margin-top: 50px;
 }
 
 .footer-copyright {
@@ -553,8 +319,16 @@
   text-align: left;
 }
 
-/* Mobile Responsive */
+/* Responsive */
 @media (max-width: 1024px) {
+  .retro-runner-overlay {
+    padding: 24px 4% 0;
+  }
+
+  .runner-brand-watermark {
+    font-size: 32px;
+  }
+
   .footer-main-grid {
     grid-template-columns: 1fr 1fr;
     gap: 36px;
@@ -562,22 +336,36 @@
 }
 
 @media (max-width: 768px) {
+  .retro-runner-banner {
+    height: 220px;
+  }
+
+  .retro-runner-overlay {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px 0;
+  }
+
+  .runner-left-col {
+    display: none;
+  }
+
+  .runner-right-col {
+    align-items: center;
+    text-align: center;
+  }
+
+  .runner-bet-box {
+    margin-bottom: 8px;
+  }
+
+  .runner-bet-title {
+    font-size: 18px;
+  }
+
   .footer-container {
     width: 92%;
-    gap: 44px;
-  }
-
-  .footer-game-card {
-    padding: 24px 18px;
-  }
-
-  .game-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .game-canvas-wrapper {
-    height: 320px;
   }
 
   .footer-main-grid {
@@ -587,5 +375,6 @@
 
   .footer-bottom-bar {
     padding-top: 28px;
+    margin-top: 36px;
   }
 }

@@ -1,37 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Play,
-  RotateCcw,
-  Trophy,
-  Sparkles,
-  Volume2,
-  VolumeX,
-  Heart,
-  ArrowUpRight
-} from 'lucide-react';
 import './FooterGameSection.css';
 
 export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [isGameWon, setIsGameWon] = useState(false);
+  const canvasRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try {
-      return parseInt(localStorage.getItem('jime_game_brick_high') || '0', 10);
+      return parseInt(localStorage.getItem('jime_retro_runner_high') || '0', 10);
     } catch {
       return 0;
     }
   });
-  const [lives, setLives] = useState(3);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [unlockedReward, setUnlockedReward] = useState(false);
+  const [isCrashed, setIsCrashed] = useState(false);
 
-  const canvasRef = useRef(null);
-
-  // Web Audio Synthesizer
-  const playSound = (type) => {
-    if (!soundEnabled) return;
+  // Web Audio Synth for retro jump and hit sound
+  const playRetroSound = (type) => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
@@ -41,117 +25,94 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      if (type === 'bounce') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, ctx.currentTime);
+      if (type === 'jump') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.12);
         gain.gain.setValueAtTime(0.12, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
         osc.start();
-        osc.stop(ctx.currentTime + 0.08);
-      } else if (type === 'brick') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(600 + Math.random() * 200, ctx.currentTime);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.1);
-      } else if (type === 'powerup') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.2);
+        osc.stop(ctx.currentTime + 0.12);
       } else if (type === 'hit') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
         osc.start();
         osc.stop(ctx.currentTime + 0.25);
-      } else if (type === 'win') {
+      } else if (type === 'point') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523, ctx.currentTime);
-        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
-        osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
-        osc.frequency.setValueAtTime(1046, ctx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
         osc.start();
-        osc.stop(ctx.currentTime + 0.5);
+        osc.stop(ctx.currentTime + 0.1);
       }
     } catch {
-      /* AudioContext not supported */
+      /* audio not supported */
     }
   };
 
-  // State Engine Ref for 60fps Loop
-  const engineRef = useRef({
-    running: false,
-    width: 600,
-    height: 380,
-    mousePos: { x: 300, y: 340 },
-    keys: {},
-    paddle: { x: 255, y: 350, width: 90, height: 12, speed: 8 },
-    balls: [{ x: 300, y: 335, vx: 4, vy: -4.5, radius: 6 }],
-    bricks: [],
-    powerups: [],
+  const runnerStateRef = useRef({
+    running: true,
+    player: {
+      x: 90,
+      y: 195,
+      width: 22,
+      height: 22,
+      vy: 0,
+      jumpForce: -10.8,
+      gravity: 0.55,
+      groundY: 195,
+      isGrounded: true,
+      jumpCount: 0,
+      maxJumps: 2,
+    },
+    obstacles: [],
     particles: [],
+    stars: [],
+    binaryOffset: 0,
+    speed: 4.6,
+    score: 0,
+    spawnTimer: 0,
+    nextSpawn: 80,
   });
 
-  // Init Bricks Helper
-  const initBricks = () => {
-    const bricks = [];
-    const rows = 5;
-    const cols = 8;
-    const brickWidth = 60;
-    const brickHeight = 18;
-    const padding = 8;
-    const offsetTop = 40;
-    const offsetLeft = (600 - (cols * brickWidth + (cols - 1) * padding)) / 2;
+  const jump = () => {
+    const s = runnerStateRef.current;
+    if (!s.running) {
+      s.running = true;
+      setIsPlaying(true);
+      return;
+    }
+    if (s.player.jumpCount < s.player.maxJumps) {
+      s.player.vy = s.player.jumpForce;
+      s.player.isGrounded = false;
+      s.player.jumpCount += 1;
+      playRetroSound('jump');
 
-    const rowColors = [
-      { color: '#00b4d8', points: 50 },
-      { color: '#17c3b2', points: 40 },
-      { color: '#38bdf8', points: 30 },
-      { color: '#f59e0b', points: 20 },
-      { color: '#a855f7', points: 10 },
-    ];
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const x = offsetLeft + c * (brickWidth + padding);
-        const y = offsetTop + r * (brickHeight + padding);
-        bricks.push({
-          x,
-          y,
-          width: brickWidth,
-          height: brickHeight,
-          color: rowColors[r].color,
-          points: rowColors[r].points,
-          alive: true,
+      // Create jump dust particles
+      for (let i = 0; i < 6; i++) {
+        s.particles.push({
+          x: s.player.x + 11,
+          y: s.player.groundY + 20,
+          vx: (Math.random() - 0.5) * 3,
+          vy: Math.random() * -2 - 0.5,
+          size: Math.random() * 2 + 1,
+          color: '#00f0ff',
+          alpha: 1,
+          decay: 0.05,
         });
       }
     }
-    return bricks;
   };
 
-  const handleStartGame = () => {
-    const e = engineRef.current;
-    e.running = true;
-    setIsPlaying(true);
-    setIsGameOver(false);
-    setIsGameWon(false);
-    setScore(0);
-    setLives(3);
-
-    e.paddle = { x: 255, y: 350, width: 90, height: 12, speed: 8 };
-    e.balls = [{ x: 300, y: 335, vx: (Math.random() > 0.5 ? 4 : -4), vy: -4.5, radius: 6 }];
-    e.bricks = initBricks();
-    e.powerups = [];
-    e.particles = [];
+  const toggleGameState = () => {
+    const s = runnerStateRef.current;
+    s.running = !s.running;
+    setIsPlaying(s.running);
   };
 
   useEffect(() => {
@@ -161,315 +122,262 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     const ctx = canvas.getContext('2d');
     let animationId;
 
-    const width = (canvas.width = 600);
-    const height = (canvas.height = 380);
-    const e = engineRef.current;
-    e.width = width;
-    e.height = height;
+    let width = (canvas.width = window.innerWidth);
+    const height = (canvas.height = 240);
+    const groundY = height - 24;
 
-    const handleKeyDown = (evt) => {
-      e.keys[evt.code] = true;
-      if (evt.code === 'Space' && e.running) {
-        evt.preventDefault();
+    const s = runnerStateRef.current;
+    s.player.groundY = groundY - s.player.height;
+    s.player.y = s.player.groundY;
+
+    // Background floating stars
+    s.stars = Array.from({ length: 35 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * (height - 50),
+      size: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.4 + 0.1,
+    }));
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      s.player.groundY = height - 24 - s.player.height;
+      if (s.player.isGrounded) {
+        s.player.y = s.player.groundY;
       }
     };
 
-    const handleKeyUp = (evt) => {
-      e.keys[evt.code] = false;
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+        e.preventDefault();
+        jump();
+      }
     };
 
-    const handleCanvasMouseMove = (evt) => {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const clientX = (evt.clientX - rect.left) * scaleX;
-      e.mousePos.x = clientX;
+    const handleCanvasClick = (e) => {
+      jump();
     };
 
-    const handleTouchMove = (evt) => {
-      if (!evt.touches[0]) return;
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const clientX = (evt.touches[0].clientX - rect.left) * scaleX;
-      e.mousePos.x = clientX;
-    };
-
+    window.addEventListener('resize', handleResize);
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    canvas.addEventListener('mousemove', handleCanvasMouseMove);
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
+    canvas.addEventListener('mousedown', handleCanvasClick);
+    canvas.addEventListener('touchstart', handleCanvasClick, { passive: true });
 
-    const createExplosion = (x, y, color) => {
-      for (let i = 0; i < 12; i++) {
+    const createCrashExplosion = (x, y) => {
+      for (let i = 0; i < 20; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const spd = Math.random() * 4 + 1.5;
-        e.particles.push({
+        const spd = Math.random() * 5 + 1.5;
+        s.particles.push({
           x,
           y,
           vx: Math.cos(angle) * spd,
           vy: Math.sin(angle) * spd,
-          size: Math.random() * 2.5 + 1.5,
-          color,
+          size: Math.random() * 3 + 1.5,
+          color: Math.random() > 0.5 ? '#ff3366' : '#00f0ff',
           alpha: 1,
-          decay: Math.random() * 0.04 + 0.02,
+          decay: 0.035,
         });
       }
     };
 
-    // Main 60fps Game Loop
+    const spawnObstacle = () => {
+      const types = [
+        { type: 'spike', width: 16, height: 22, color: '#ff3366' },
+        { type: 'arrow', width: 18, height: 18, color: '#00b4d8', fly: true },
+        { type: 'double-spike', width: 32, height: 22, color: '#ff3366' },
+      ];
+      const selected = types[Math.floor(Math.random() * types.length)];
+      const yPos = selected.fly ? groundY - 42 : groundY - selected.height;
+
+      s.obstacles.push({
+        x: width + 20,
+        y: yPos,
+        width: selected.width,
+        height: selected.height,
+        color: selected.color,
+        type: selected.type,
+        passed: false,
+      });
+    };
+
+    // Main 60fps Runner Loop
     const loop = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw subtle retro grid background
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 1;
-      const step = 20;
-      for (let x = 0; x < width; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      if (e.running) {
-        // Paddle position update with mouse or keys
-        if (e.keys['ArrowLeft'] || e.keys['KeyA']) {
-          e.paddle.x -= e.paddle.speed;
-        } else if (e.keys['ArrowRight'] || e.keys['KeyD']) {
-          e.paddle.x += e.paddle.speed;
-        } else {
-          e.paddle.x += (e.mousePos.x - e.paddle.width / 2 - e.paddle.x) * 0.25;
+      // 1. Draw Starfield
+      for (let star of s.stars) {
+        if (s.running) {
+          star.x -= star.speed;
+          if (star.x < 0) star.x = width;
         }
-        e.paddle.x = Math.max(10, Math.min(width - e.paddle.width - 10, e.paddle.x));
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        ctx.fillRect(star.x, star.y, star.size, star.size);
+      }
 
-        // Update Balls
-        for (let i = e.balls.length - 1; i >= 0; i--) {
-          const b = e.balls[i];
-          b.x += b.vx;
-          b.y += b.vy;
+      if (s.running) {
+        // Player Physics
+        s.player.y += s.player.vy;
+        s.player.vy += s.player.gravity;
 
-          // Wall collisions
-          if (b.x - b.radius < 0) {
-            b.x = b.radius;
-            b.vx = Math.abs(b.vx);
-            playSound('bounce');
-          } else if (b.x + b.radius > width) {
-            b.x = width - b.radius;
-            b.vx = -Math.abs(b.vx);
-            playSound('bounce');
+        // Ground collision
+        if (s.player.y >= s.player.groundY) {
+          s.player.y = s.player.groundY;
+          s.player.vy = 0;
+          s.player.isGrounded = true;
+          s.player.jumpCount = 0;
+        }
+
+        // Spawn obstacles
+        s.spawnTimer++;
+        if (s.spawnTimer > s.nextSpawn) {
+          spawnObstacle();
+          s.spawnTimer = 0;
+          s.nextSpawn = Math.floor(Math.random() * 55) + 65;
+        }
+
+        // Speed increases subtly
+        s.speed = Math.min(8.5, 4.6 + s.score * 0.08);
+
+        // Update Obstacles
+        for (let i = s.obstacles.length - 1; i >= 0; i--) {
+          const obs = s.obstacles[i];
+          obs.x -= s.speed;
+
+          // Check Score
+          if (!obs.passed && obs.x < s.player.x) {
+            obs.passed = true;
+            s.score += 1;
+            setScore(s.score);
+            playRetroSound('point');
+
+            if (s.score > highScore) {
+              setHighScore(s.score);
+              try {
+                localStorage.setItem('jime_retro_runner_high', s.score.toString());
+              } catch {}
+            }
           }
-          if (b.y - b.radius < 0) {
-            b.y = b.radius;
-            b.vy = Math.abs(b.vy);
-            playSound('bounce');
-          }
 
-          // Paddle collision
+          // AABB Hitbox Collision Check
+          const p = s.player;
+          const hitPadding = 4;
           if (
-            b.y + b.radius >= e.paddle.y &&
-            b.y - b.radius <= e.paddle.y + e.paddle.height &&
-            b.x >= e.paddle.x &&
-            b.x <= e.paddle.x + e.paddle.width &&
-            b.vy > 0
+            p.x + p.width - hitPadding > obs.x &&
+            p.x + hitPadding < obs.x + obs.width &&
+            p.y + p.height - hitPadding > obs.y &&
+            p.y + hitPadding < obs.y + obs.height
           ) {
-            const hitOffset = (b.x - (e.paddle.x + e.paddle.width / 2)) / (e.paddle.width / 2);
-            b.vx = hitOffset * 5.5;
-            b.vy = -Math.abs(b.vy);
-            playSound('bounce');
+            // Player Crashed
+            createCrashExplosion(p.x + 11, p.y + 11);
+            playRetroSound('hit');
+            setIsCrashed(true);
+            s.score = 0;
+            setScore(0);
+            s.obstacles = [];
+            setTimeout(() => setIsCrashed(false), 300);
+            break;
           }
 
-          // Brick collisions
-          let activeBricksCount = 0;
-          for (let br of e.bricks) {
-            if (!br.alive) continue;
-            activeBricksCount++;
-
-            if (
-              b.x + b.radius >= br.x &&
-              b.x - b.radius <= br.x + br.width &&
-              b.y + b.radius >= br.y &&
-              b.y - b.radius <= br.y + br.height
-            ) {
-              br.alive = false;
-              b.vy = -b.vy;
-              createExplosion(br.x + br.width / 2, br.y + br.height / 2, br.color);
-              playSound('brick');
-
-              // Spawn random power-up
-              if (Math.random() < 0.22) {
-                e.powerups.push({
-                  x: br.x + br.width / 2,
-                  y: br.y + br.height / 2,
-                  type: Math.random() > 0.5 ? 'wide' : 'multi',
-                  vy: 2.2,
-                });
-              }
-
-              setScore((prev) => {
-                const newScore = prev + br.points;
-                if (newScore > highScore) {
-                  setHighScore(newScore);
-                  try {
-                    localStorage.setItem('jime_game_brick_high', newScore.toString());
-                  } catch {}
-                }
-                if (newScore >= 400 && !unlockedReward) {
-                  setUnlockedReward(true);
-                  playSound('win');
-                }
-                return newScore;
-              });
-              break;
-            }
-          }
-
-          // Check Win Condition
-          if (activeBricksCount === 0) {
-            e.running = false;
-            setIsPlaying(false);
-            setIsGameWon(true);
-            playSound('win');
-          }
-
-          // Ball drops below paddle
-          if (b.y > height + 20) {
-            e.balls.splice(i, 1);
+          // Off-screen removal
+          if (obs.x < -60) {
+            s.obstacles.splice(i, 1);
           }
         }
 
-        // If all balls lost
-        if (e.balls.length === 0) {
-          setLives((prevLives) => {
-            const newLives = prevLives - 1;
-            if (newLives > 0) {
-              e.balls.push({
-                x: e.paddle.x + e.paddle.width / 2,
-                y: e.paddle.y - 15,
-                vx: (Math.random() > 0.5 ? 4 : -4),
-                vy: -4.5,
-                radius: 6,
-              });
-              playSound('hit');
-            } else {
-              e.running = false;
-              setIsPlaying(false);
-              setIsGameOver(true);
-              playSound('hit');
-            }
-            return newLives;
-          });
-        }
-
-        // Update & Draw Power-ups
-        for (let pIdx = e.powerups.length - 1; pIdx >= 0; pIdx--) {
-          const p = e.powerups[pIdx];
-          p.y += p.vy;
-
-          if (
-            p.y >= e.paddle.y &&
-            p.y <= e.paddle.y + e.paddle.height &&
-            p.x >= e.paddle.x &&
-            p.x <= e.paddle.x + e.paddle.width
-          ) {
-            playSound('powerup');
-            if (p.type === 'wide') {
-              e.paddle.width = Math.min(140, e.paddle.width + 30);
-            } else if (p.type === 'multi') {
-              if (e.balls[0]) {
-                e.balls.push({
-                  x: e.balls[0].x,
-                  y: e.balls[0].y,
-                  vx: -3.5,
-                  vy: -4,
-                  radius: 6,
-                });
-                e.balls.push({
-                  x: e.balls[0].x,
-                  y: e.balls[0].y,
-                  vx: 3.5,
-                  vy: -4,
-                  radius: 6,
-                });
-              }
-            }
-            e.powerups.splice(pIdx, 1);
-            continue;
-          }
-
-          if (p.y > height + 20) {
-            e.powerups.splice(pIdx, 1);
-            continue;
-          }
-
-          // Draw Power-Up pill
-          ctx.save();
-          ctx.fillStyle = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
-          ctx.shadowColor = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
-          ctx.shadowBlur = 8;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
+        // Scroll Binary Stream
+        s.binaryOffset = (s.binaryOffset - s.speed * 0.6) % 300;
       }
 
-      // Render Bricks
-      for (let br of e.bricks) {
-        if (!br.alive) continue;
+      // 2. Draw Obstacles
+      for (let obs of s.obstacles) {
         ctx.save();
-        ctx.fillStyle = br.color;
-        ctx.shadowColor = br.color;
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.roundRect(br.x, br.y, br.width, br.height, 4);
-        ctx.fill();
+        ctx.fillStyle = obs.color;
+        ctx.shadowColor = obs.color;
+        ctx.shadowBlur = 10;
 
-        // Specular top highlight on brick
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-        ctx.fillRect(br.x + 2, br.y + 2, br.width - 4, 3);
+        if (obs.type === 'spike') {
+          // Neon Triangle Spike
+          ctx.beginPath();
+          ctx.moveTo(obs.x + obs.width / 2, obs.y);
+          ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+          ctx.lineTo(obs.x, obs.y + obs.height);
+          ctx.closePath();
+          ctx.fill();
+        } else if (obs.type === 'double-spike') {
+          // Double Spikes
+          const half = obs.width / 2;
+          ctx.beginPath();
+          ctx.moveTo(obs.x + half / 2, obs.y);
+          ctx.lineTo(obs.x + half, obs.y + obs.height);
+          ctx.lineTo(obs.x, obs.y + obs.height);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(obs.x + half + half / 2, obs.y);
+          ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+          ctx.lineTo(obs.x + half, obs.y + obs.height);
+          ctx.closePath();
+          ctx.fill();
+        } else if (obs.type === 'arrow') {
+          // Downward Chevron / Floating Obstacle
+          ctx.beginPath();
+          ctx.moveTo(obs.x, obs.y);
+          ctx.lineTo(obs.x + obs.width / 2, obs.y + obs.height);
+          ctx.lineTo(obs.x + obs.width, obs.y);
+          ctx.lineTo(obs.x + obs.width / 2, obs.y + obs.height - 6);
+          ctx.closePath();
+          ctx.fill();
+        }
         ctx.restore();
       }
 
-      // Render Paddle
+      // 3. Draw Player (Glowing Cyan Cube Runner)
       ctx.save();
-      ctx.fillStyle = '#00b4d8';
-      ctx.shadowColor = '#00b4d8';
-      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#00f0ff';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 14;
       ctx.beginPath();
-      ctx.roundRect(e.paddle.x, e.paddle.y, e.paddle.width, e.paddle.height, 6);
+      ctx.roundRect(s.player.x, s.player.y, s.player.width, s.player.height, 3);
       ctx.fill();
 
-      // Paddle inner white shine
+      // Inner specular light
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(e.paddle.x + 8, e.paddle.y + 2, e.paddle.width - 16, 2);
+      ctx.fillRect(s.player.x + 3, s.player.y + 3, s.player.width - 6, 4);
       ctx.restore();
 
-      // Render Balls
-      for (let b of e.balls) {
-        ctx.save();
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#00b4d8';
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
+      // 4. Draw Cyan Ground Line
+      ctx.save();
+      ctx.strokeStyle = '#00b4d8';
+      ctx.shadowColor = '#00b4d8';
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, groundY);
+      ctx.lineTo(width, groundY);
+      ctx.stroke();
+      ctx.restore();
 
-      // Render Particles
-      for (let i = e.particles.length - 1; i >= 0; i--) {
-        const p = e.particles[i];
+      // 5. Draw Binary Code Stream Under Ground Line
+      ctx.save();
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(0, 180, 216, 0.45)';
+      ctx.letterSpacing = '1px';
+      const binaryText =
+        '01100100110010100111001001101111011010100110010101100011011101000111100001000001011100100110001101100001011001000110010101101010011010010110110101100101011001000110010101110110';
+      const repeated = binaryText.repeat(8);
+      ctx.fillText(repeated, s.binaryOffset, groundY + 14);
+      ctx.restore();
+
+      // 6. Draw Particles
+      for (let i = s.particles.length - 1; i >= 0; i--) {
+        const p = s.particles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.alpha -= p.decay;
 
         if (p.alpha <= 0) {
-          e.particles.splice(i, 1);
+          s.particles.splice(i, 1);
           continue;
         }
 
@@ -487,137 +395,92 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     loop();
 
     return () => {
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      canvas.removeEventListener('mousemove', handleCanvasMouseMove);
-      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('mousedown', handleCanvasClick);
+      canvas.removeEventListener('touchstart', handleCanvasClick);
       cancelAnimationFrame(animationId);
     };
-  }, [soundEnabled, highScore, unlockedReward]);
+  }, [highScore]);
 
   return (
     <footer className="footer-section">
-      <div className="footer-container">
-        {/* Cyber Brick Breaker Arcade Card */}
-        <div className="footer-game-card">
-          <div className="game-card-header">
-            <div className="game-header-left">
-              <span className="game-eyebrow">
-                <Sparkles size={13} />
-                <span>CYBER ARCADE EASTER EGG</span>
-              </span>
-              <h3 className="game-title">⚡ Cyber Brick Breaker</h3>
-              <p className="game-desc">
-                Smash glowing data blocks! Score 400+ to unlock an exclusive 10% project discount code.
-              </p>
-            </div>
+      {/* 8-Bit Retro Runner Game Canvas Banner */}
+      <div className="retro-runner-banner">
+        {/* Canvas Engine */}
+        <canvas ref={canvasRef} className="retro-runner-canvas" />
 
-            {/* Controls */}
-            <div className="game-header-controls">
-              <button
-                type="button"
-                className="game-sound-btn"
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                title={soundEnabled ? 'Mute Sound' : 'Enable Sound'}
-              >
-                {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-              </button>
-
-              <div className="game-stat-pill">
-                <Trophy size={14} className="trophy-icon" />
-                <span>Best: {highScore}</span>
-              </div>
-            </div>
+        {/* UI Overlay Content matching exact reference image */}
+        <div className="retro-runner-overlay">
+          {/* Left: Watermark Brand Title */}
+          <div className="runner-left-col">
+            <h3 className="runner-brand-watermark">JIME DEVELOPERS</h3>
+            <p className="runner-created-by">
+              Created by <strong>Jime Developers</strong> © 2026
+            </p>
           </div>
 
-          {/* Game Canvas Container */}
-          <div className="game-canvas-wrapper">
-            <canvas ref={canvasRef} className="game-canvas" />
-
-            {/* In-Game Live HUD */}
-            {isPlaying && (
-              <div className="game-hud">
-                <div className="hud-score">
-                  <span className="hud-label">SCORE</span>
-                  <span className="hud-value">{score}</span>
-                </div>
-
-                <div className="hud-lives">
-                  {Array.from({ length: 3 }).map((_, idx) => (
-                    <Heart
-                      key={idx}
-                      size={16}
-                      className={idx < lives ? 'heart-alive' : 'heart-dead'}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Start Screen Overlay */}
-            {!isPlaying && !isGameOver && !isGameWon && (
-              <div className="game-overlay">
-                <div className="overlay-badge">NEON BREAKOUT</div>
-                <h4>Smash The Codebase</h4>
-                <p>Move mouse or drag finger to guide the paddle · Catch falling power-ups!</p>
-                <button type="button" className="game-play-btn" onClick={handleStartGame}>
-                  <Play size={16} fill="currentColor" />
-                  <span>Start Game</span>
-                </button>
-              </div>
-            )}
-
-            {/* Game Over / Win Screen Overlay */}
-            {(isGameOver || isGameWon) && (
-              <div className="game-overlay">
-                <div className={`overlay-badge ${isGameWon ? 'game-won-badge' : 'game-over-badge'}`}>
-                  {isGameWon ? 'STAGE CLEARED!' : 'GAME OVER'}
-                </div>
-                <h4>Final Score: {score}</h4>
-                {score >= 400 ? (
-                  <p className="game-reward-unlocked">
-                    🎉 10% Discount Unlocked! Code: <strong>BUGBLASTER10</strong>
-                  </p>
-                ) : (
-                  <p>Reach 400+ points to unlock your exclusive 10% project discount!</p>
-                )}
-                <button type="button" className="game-play-btn" onClick={handleStartGame}>
-                  <RotateCcw size={16} />
-                  <span>Play Again</span>
-                </button>
-              </div>
-            )}
+          {/* Center: Retro 8-Bit Score Counter */}
+          <div className="runner-center-col" onClick={jump}>
+            <div className="runner-score-row">
+              <span className="runner-cross-symbol">x</span>
+              <span className="runner-score-num">{score}</span>
+            </div>
+            <span className="runner-instructions">JUMP RETRO OBSTACLES</span>
           </div>
 
-          {/* Secret Milestone Reward Banner */}
-          {unlockedReward && (
-            <div className="game-discount-banner">
-              <div className="discount-left">
-                <span className="discount-icon">🎁</span>
-                <div>
-                  <strong>Secret Perk Unlocked!</strong>
-                  <span>Use promo code <strong>BUGBLASTER10</strong> for 10% off your next project proposal.</span>
-                </div>
-              </div>
+          {/* Right: STOP/PLAY Game & Social Links */}
+          <div className="runner-right-col">
+            <div className="runner-bet-box">
               <button
                 type="button"
-                className="discount-claim-btn"
-                onClick={onOpenBookCall}
+                className="runner-stop-btn"
+                onClick={toggleGameState}
               >
-                <span>Claim on Call</span>
-                <ArrowUpRight size={15} />
+                <u>{isPlaying ? 'STOP' : 'PLAY'}</u> this game,
               </button>
+              <h4 className="runner-bet-title">Bet you can win.</h4>
             </div>
-          )}
+
+            <div className="runner-social-links">
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+              >
+                LinkedIn
+              </a>
+              <span className="runner-social-pipe">|</span>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+              >
+                GitHub
+              </a>
+              <span className="runner-social-pipe">|</span>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Global Footer Navigation & Brand Section matching reference design */}
+      {/* Main Studio Navigation Footer */}
+      <div className="footer-container">
         <div className="footer-main-grid">
           {/* Column 1: Brand & Info */}
           <div className="footer-brand-col">
             <div className="footer-logo-row">
               <img src="/logo.png" alt="Jime Developers Logo" className="footer-logo-img" />
-              <span className="footer-brand-name">Jime <span className="footer-brand-sub">Developers</span></span>
             </div>
             <p className="footer-description">
               A web development studio building websites and apps for founders and small businesses. Based in Tamil Nadu, working with clients across India and Malaysia.
