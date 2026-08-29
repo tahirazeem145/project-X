@@ -1,5 +1,6 @@
 import React from 'react';
-import { Star, CheckCircle, ShieldCheck, User } from 'lucide-react';
+import { Star, ShieldCheck, User } from 'lucide-react';
+import { ScrollReelTestimonials } from './ui/scroll-reel-testimonials';
 import './TestimonialsSection.css';
 
 export default function TestimonialsSection() {
@@ -22,36 +23,27 @@ export default function TestimonialsSection() {
     ],
   };
 
-  const miniTestimonials = [
+  const reelTestimonials = [
     {
-      id: 'ansari',
-      name: 'Ansari Jr',
-      location: 'Tamil Nadu, India',
-      flag: '🇮🇳',
-      initials: 'AJ',
-      rating: 5,
-      quote: 'The website was absolutely fantastic and launched on time.',
-      accent: '#38bdf8',
+      quote: "The website was absolutely fantastic and launched on time.",
+      author: "Ansari Jr — Tamil Nadu, India",
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80&auto=format&fit=crop",
+      alt: "Portrait of Ansari Jr",
     },
     {
-      id: 'suriya',
-      name: 'Suriyaprakash Mahendran',
-      location: 'Kuala Lumpur, Malaysia',
-      flag: '🇲🇾',
-      initials: 'SM',
-      rating: 5,
-      quote: 'Affordable, fast delivery, and customer-friendly.',
-      accent: '#2dd4bf',
+      quote: "Affordable, fast delivery, and customer-friendly.",
+      author: "Suriyaprakash Mahendran — Kuala Lumpur, Malaysia",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80&auto=format&fit=crop",
+      alt: "Portrait of Suriyaprakash Mahendran",
     },
     {
-      id: 'winne',
-      name: 'Winne',
-      location: 'Kuala Lumpur, Malaysia',
-      flag: '🇲🇾',
-      initials: 'W',
-      rating: 5,
-      quote: 'Excellent service and project delivered on time. Highly recommend!',
-      accent: '#a855f7',
+      quote: "Excellent service and project delivered on time. Highly recommend!",
+      author: "Winne — Kuala Lumpur, Malaysia",
+      image:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80&auto=format&fit=crop",
+      alt: "Portrait of Winne",
     },
   ];
 
@@ -138,40 +130,9 @@ export default function TestimonialsSection() {
             </div>
           </div>
 
-          {/* 3 Mini Testimonials Grid Below the Large Card */}
-          <div className="mini-testimonials-grid">
-            {miniTestimonials.map((item) => (
-              <div key={item.id} className="mini-testimonial-card">
-                {/* 5 Stars */}
-                <div className="mini-stars-wrap">
-                  {[...Array(item.rating)].map((_, i) => (
-                    <Star key={i} size={14} className="star-icon filled" />
-                  ))}
-                </div>
-
-                {/* Quote */}
-                <p className="mini-quote-text">"{item.quote}"</p>
-
-                {/* Author Info */}
-                <div className="mini-author-row">
-                  <div
-                    className="mini-avatar"
-                    style={{
-                      borderColor: `${item.accent}55`,
-                      color: item.accent,
-                    }}
-                  >
-                    {item.initials}
-                  </div>
-                  <div className="mini-meta">
-                    <span className="mini-author-name">{item.name}</span>
-                    <span className="mini-author-location">
-                      {item.flag} {item.location}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Scroll Reel Interactive Counter-Rotating Testimonials Carousel */}
+          <div className="scroll-reel-section-wrap">
+            <ScrollReelTestimonials testimonials={reelTestimonials} />
           </div>
         </div>
       </div>
