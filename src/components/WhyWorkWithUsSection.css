@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Why Work With Us Section - Liquid Glass Value Cards
+   Why Work With Us Section - Authentic Liquid Glass Cards
    ========================================================================== */
 .why-us-section {
   position: relative;
@@ -66,10 +66,14 @@
 .why-us-card {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 19, 27, 0.75) 45%, rgba(56, 189, 248, 0.04) 100%);
+  /* Dual-layer background: directional glass glare + dark translucent liquid body */
+  background: 
+    radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 75%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(13, 17, 26, 0.76) 45%, rgba(18, 24, 36, 0.65) 85%, rgba(56, 189, 248, 0.04) 100%);
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 32px;
   padding: 38px 34px 42px;
   display: flex;
@@ -77,10 +81,10 @@
   align-items: flex-start;
   min-height: 280px;
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.4),
     inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 16px 45px rgba(0, 0, 0, 0.5),
-    0 0 30px rgba(56, 189, 248, 0.06);
+    0 16px 45px rgba(0, 0, 0, 0.55),
+    0 0 25px rgba(255, 255, 255, 0.03);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   cursor: pointer;
@@ -88,25 +92,29 @@
 
 .why-us-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.55);
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.6),
     inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 22px 55px rgba(0, 0, 0, 0.65),
-    0 0 35px rgba(56, 189, 248, 0.12);
+    0 22px 55px rgba(0, 0, 0, 0.7),
+    0 0 35px rgba(255, 255, 255, 0.08);
 }
 
 .why-us-icon-wrap {
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(10, 14, 22, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.38);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 26px;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.35);
   transition: all 0.3s ease;
   color: #ffffff;
 }
@@ -117,8 +125,9 @@
 }
 
 .why-us-card:hover .why-us-icon-wrap {
-  background: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(14, 20, 32, 0.95) 100%);
   border-color: rgba(255, 255, 255, 0.32);
+  border-top-color: rgba(255, 255, 255, 0.6);
   transform: scale(1.04);
 }
 
