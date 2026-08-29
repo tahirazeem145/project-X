@@ -12,7 +12,13 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       return 0;
     }
   });
-  const [isCrashed, setIsCrashed] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
+
+  const highScoreRef = useRef(highScore);
+  highScoreRef.current = highScore;
+
+  const onOpenBookCallRef = useRef(onOpenBookCall);
+  onOpenBookCallRef.current = onOpenBookCall;
 
   // Web Audio Synth for retro jump and hit sound
   const playRetroSound = (type) => {
@@ -27,24 +33,24 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
       if (type === 'jump') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(150, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.12);
+        osc.frequency.setValueAtTime(160, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(620, ctx.currentTime + 0.12);
         gain.gain.setValueAtTime(0.12, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
         osc.start();
         osc.stop(ctx.currentTime + 0.12);
       } else if (type === 'hit') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(180, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+        osc.frequency.setValueAtTime(220, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.28);
+        gain.gain.setValueAtTime(0.22, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.28);
         osc.start();
-        osc.stop(ctx.currentTime + 0.25);
+        osc.stop(ctx.currentTime + 0.28);
       } else if (type === 'point') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.05);
+        osc.frequency.setValueAtTime(750, ctx.currentTime);
+        osc.frequency.setValueAtTime(1150, ctx.currentTime + 0.05);
         gain.gain.setValueAtTime(0.08, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
         osc.start();
@@ -57,15 +63,17 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
   const runnerStateRef = useRef({
     running: true,
+    crashed: false,
+    invulnerableTimer: 0,
     player: {
       x: 90,
-      y: 195,
+      y: 194,
       width: 22,
       height: 22,
       vy: 0,
-      jumpForce: -10.8,
-      gravity: 0.55,
-      groundY: 195,
+      jumpForce: -11.2,
+      gravity: 0.56,
+      groundY: 194,
       isGrounded: true,
       jumpCount: 0,
       maxJumps: 2,
@@ -74,19 +82,36 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     particles: [],
     stars: [],
     binaryOffset: 0,
-    speed: 4.6,
+    speed: 4.8,
     score: 0,
     spawnTimer: 0,
-    nextSpawn: 80,
+    nextSpawn: 90,
   });
 
-  const jump = () => {
+  const triggerJump = () => {
     const s = runnerStateRef.current;
+    if (s.crashed) {
+      // Respawn & restart
+      s.crashed = false;
+      s.score = 0;
+      s.obstacles = [];
+      s.player.y = s.player.groundY;
+      s.player.vy = 0;
+      s.player.jumpCount = 0;
+      s.invulnerableTimer = 40;
+      setScore(0);
+      setIsGameOver(false);
+      s.running = true;
+      setIsPlaying(true);
+      return;
+    }
+
     if (!s.running) {
       s.running = true;
       setIsPlaying(true);
       return;
     }
+
     if (s.player.jumpCount < s.player.maxJumps) {
       s.player.vy = s.player.jumpForce;
       s.player.isGrounded = false;
@@ -97,7 +122,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       for (let i = 0; i < 6; i++) {
         s.particles.push({
           x: s.player.x + 11,
-          y: s.player.groundY + 20,
+          y: s.player.groundY + 22,
           vx: (Math.random() - 0.5) * 3,
           vy: Math.random() * -2 - 0.5,
           size: Math.random() * 2 + 1,
@@ -109,7 +134,8 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     }
   };
 
-  const toggleGameState = () => {
+  const toggleGameState = (e) => {
+    if (e) e.stopPropagation();
     const s = runnerStateRef.current;
     s.running = !s.running;
     setIsPlaying(s.running);
@@ -122,7 +148,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     const ctx = canvas.getContext('2d');
     let animationId;
 
-    let width = (canvas.width = window.innerWidth);
+    let width = (canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth);
     const height = (canvas.height = 240);
     const groundY = height - 24;
 
@@ -140,7 +166,9 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     }));
 
     const handleResize = () => {
-      width = canvas.width = window.innerWidth;
+      if (canvas.parentElement) {
+        width = canvas.width = canvas.parentElement.clientWidth;
+      }
       s.player.groundY = height - 24 - s.player.height;
       if (s.player.isGrounded) {
         s.player.y = s.player.groundY;
@@ -150,32 +178,26 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     const handleKeyDown = (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault();
-        jump();
+        triggerJump();
       }
-    };
-
-    const handleCanvasClick = (e) => {
-      jump();
     };
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('keydown', handleKeyDown);
-    canvas.addEventListener('mousedown', handleCanvasClick);
-    canvas.addEventListener('touchstart', handleCanvasClick, { passive: true });
 
     const createCrashExplosion = (x, y) => {
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 22; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const spd = Math.random() * 5 + 1.5;
+        const spd = Math.random() * 5.5 + 1.5;
         s.particles.push({
           x,
           y,
           vx: Math.cos(angle) * spd,
           vy: Math.sin(angle) * spd,
-          size: Math.random() * 3 + 1.5,
+          size: Math.random() * 3.5 + 1.5,
           color: Math.random() > 0.5 ? '#ff3366' : '#00f0ff',
           alpha: 1,
-          decay: 0.035,
+          decay: 0.03,
         });
       }
     };
@@ -184,13 +206,19 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       const types = [
         { type: 'spike', width: 16, height: 22, color: '#ff3366' },
         { type: 'arrow', width: 18, height: 18, color: '#00b4d8', fly: true },
-        { type: 'double-spike', width: 32, height: 22, color: '#ff3366' },
+        { type: 'double-spike', width: 34, height: 22, color: '#ff3366' },
       ];
       const selected = types[Math.floor(Math.random() * types.length)];
-      const yPos = selected.fly ? groundY - 42 : groundY - selected.height;
+      const yPos = selected.fly ? groundY - 44 : groundY - selected.height;
+
+      // Ensure minimum distance from last obstacle
+      const lastObs = s.obstacles[s.obstacles.length - 1];
+      if (lastObs && lastObs.x > width - 260) {
+        return; // Don't spawn too close
+      }
 
       s.obstacles.push({
-        x: width + 20,
+        x: width + 30,
         y: yPos,
         width: selected.width,
         height: selected.height,
@@ -206,7 +234,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
       // 1. Draw Starfield
       for (let star of s.stars) {
-        if (s.running) {
+        if (s.running && !s.crashed) {
           star.x -= star.speed;
           if (star.x < 0) star.x = width;
         }
@@ -214,7 +242,11 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
         ctx.fillRect(star.x, star.y, star.size, star.size);
       }
 
-      if (s.running) {
+      if (s.invulnerableTimer > 0) {
+        s.invulnerableTimer--;
+      }
+
+      if (s.running && !s.crashed) {
         // Player Physics
         s.player.y += s.player.vy;
         s.player.vy += s.player.gravity;
@@ -232,25 +264,25 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
         if (s.spawnTimer > s.nextSpawn) {
           spawnObstacle();
           s.spawnTimer = 0;
-          s.nextSpawn = Math.floor(Math.random() * 55) + 65;
+          s.nextSpawn = Math.floor(Math.random() * 50) + 70;
         }
 
-        // Speed increases subtly
-        s.speed = Math.min(8.5, 4.6 + s.score * 0.08);
+        // Dynamic Speed
+        s.speed = Math.min(8.2, 4.8 + s.score * 0.07);
 
         // Update Obstacles
         for (let i = s.obstacles.length - 1; i >= 0; i--) {
           const obs = s.obstacles[i];
           obs.x -= s.speed;
 
-          // Check Score
+          // Check Score passing
           if (!obs.passed && obs.x < s.player.x) {
             obs.passed = true;
             s.score += 1;
             setScore(s.score);
             playRetroSound('point');
 
-            if (s.score > highScore) {
+            if (s.score > highScoreRef.current) {
               setHighScore(s.score);
               try {
                 localStorage.setItem('jime_retro_runner_high', s.score.toString());
@@ -259,27 +291,34 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           }
 
           // AABB Hitbox Collision Check
-          const p = s.player;
-          const hitPadding = 4;
-          if (
-            p.x + p.width - hitPadding > obs.x &&
-            p.x + hitPadding < obs.x + obs.width &&
-            p.y + p.height - hitPadding > obs.y &&
-            p.y + hitPadding < obs.y + obs.height
-          ) {
-            // Player Crashed
-            createCrashExplosion(p.x + 11, p.y + 11);
-            playRetroSound('hit');
-            setIsCrashed(true);
-            s.score = 0;
-            setScore(0);
-            s.obstacles = [];
-            setTimeout(() => setIsCrashed(false), 300);
-            break;
+          if (s.invulnerableTimer === 0) {
+            const p = s.player;
+            const padX = 5;
+            const padY = 4;
+            if (
+              p.x + p.width - padX > obs.x &&
+              p.x + padX < obs.x + obs.width &&
+              p.y + p.height - padY > obs.y &&
+              p.y + padY < obs.y + obs.height
+            ) {
+              // Player Hit / Out
+              createCrashExplosion(p.x + 11, p.y + 11);
+              playRetroSound('hit');
+              s.crashed = true;
+              setIsGameOver(true);
+
+              // Automatically take user to Book a Call!
+              if (onOpenBookCallRef.current) {
+                setTimeout(() => {
+                  onOpenBookCallRef.current();
+                }, 450);
+              }
+              break;
+            }
           }
 
           // Off-screen removal
-          if (obs.x < -60) {
+          if (obs.x < -80) {
             s.obstacles.splice(i, 1);
           }
         }
@@ -333,18 +372,23 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       }
 
       // 3. Draw Player (Glowing Cyan Cube Runner)
-      ctx.save();
-      ctx.fillStyle = '#00f0ff';
-      ctx.shadowColor = '#00f0ff';
-      ctx.shadowBlur = 14;
-      ctx.beginPath();
-      ctx.roundRect(s.player.x, s.player.y, s.player.width, s.player.height, 3);
-      ctx.fill();
+      if (!s.crashed || s.invulnerableTimer > 0) {
+        const isBlinking = s.invulnerableTimer > 0 && Math.floor(s.invulnerableTimer / 4) % 2 === 0;
+        if (!isBlinking) {
+          ctx.save();
+          ctx.fillStyle = '#00f0ff';
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.roundRect(s.player.x, s.player.y, s.player.width, s.player.height, 3);
+          ctx.fill();
 
-      // Inner specular light
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(s.player.x + 3, s.player.y + 3, s.player.width - 6, 4);
-      ctx.restore();
+          // Inner specular light
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(s.player.x + 3, s.player.y + 3, s.player.width - 6, 4);
+          ctx.restore();
+        }
+      }
 
       // 4. Draw Cyan Ground Line
       ctx.save();
@@ -397,16 +441,20 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('keydown', handleKeyDown);
-      canvas.removeEventListener('mousedown', handleCanvasClick);
-      canvas.removeEventListener('touchstart', handleCanvasClick);
       cancelAnimationFrame(animationId);
     };
-  }, [highScore]);
+  }, []);
 
   return (
     <footer className="footer-section">
       {/* 8-Bit Retro Runner Game Canvas Banner */}
-      <div className="retro-runner-banner">
+      <div
+        className="retro-runner-banner"
+        onClick={triggerJump}
+        role="button"
+        tabIndex={0}
+        aria-label="Click or press Spacebar to jump"
+      >
         {/* Canvas Engine */}
         <canvas ref={canvasRef} className="retro-runner-canvas" />
 
@@ -421,12 +469,14 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           </div>
 
           {/* Center: Retro 8-Bit Score Counter */}
-          <div className="runner-center-col" onClick={jump}>
+          <div className="runner-center-col">
             <div className="runner-score-row">
               <span className="runner-cross-symbol">x</span>
               <span className="runner-score-num">{score}</span>
             </div>
-            <span className="runner-instructions">JUMP RETRO OBSTACLES</span>
+            <span className="runner-instructions">
+              {isGameOver ? 'CRASHED! CLICK TO RESPAWN' : 'JUMP RETRO OBSTACLES'}
+            </span>
           </div>
 
           {/* Right: STOP/PLAY Game & Social Links */}
@@ -448,6 +498,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 target="_blank"
                 rel="noopener noreferrer"
                 className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
               >
                 LinkedIn
               </a>
@@ -457,6 +508,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 target="_blank"
                 rel="noopener noreferrer"
                 className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
               >
                 GitHub
               </a>
@@ -466,6 +518,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 target="_blank"
                 rel="noopener noreferrer"
                 className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
               >
                 Instagram
               </a>
