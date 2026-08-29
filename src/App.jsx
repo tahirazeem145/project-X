@@ -10,7 +10,6 @@ import VerifyCertificateModal from './components/VerifyCertificateModal';
 import InfoModal from './components/InfoModal';
 import ProjectDetailsModal from './components/ProjectDetailsModal';
 import DotGridCanvas from './components/DotGridCanvas';
-import AmbientSmokeBackground from './components/AmbientSmokeBackground';
 import './App.css';
 
 function App() {
@@ -36,9 +35,6 @@ function App() {
 
   return (
     <div className="app-wrapper">
-      {/* Full Page Volumetric Ambient Smoke Layer */}
-      <AmbientSmokeBackground />
-
       {/* Interactive Dot Grid Canvas with Mouse Ripple & Drift */}
       <DotGridCanvas />
 
