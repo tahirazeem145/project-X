@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
-import OurWorkSection from './components/OurWorkSection';
+import StackedCards from './components/ui/glass-cards';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
 import VerifyCertificateModal from './components/VerifyCertificateModal';
 import InfoModal from './components/InfoModal';
-import ProjectDetailsModal from './components/ProjectDetailsModal';
 import DotGridCanvas from './components/DotGridCanvas';
 import './App.css';
 
@@ -60,11 +59,8 @@ function App() {
           onOpenReviewDetails={() => setInfoModalTab('why-us')}
         />
 
-        {/* Our Work / Portfolio Showcase Section */}
-        <OurWorkSection
-          onOpenProjectDetails={(project) => setSelectedProject(project)}
-          onOpenAllWork={() => setInfoModalTab('why-us')}
-        />
+        {/* Our Work - Stacking Glass Cards with GSAP ScrollTrigger */}
+        <StackedCards />
       </main>
 
       {/* Fixed WhatsApp Floating Action Button */}
