@@ -1,5 +1,6 @@
 import React from 'react';
 import { Zap, GitFork, LifeBuoy } from 'lucide-react';
+import './WhyWorkWithUsSection.css';
 
 export default function WhyWorkWithUsSection() {
   const valueProps = [
