@@ -3,7 +3,8 @@ import './FooterGameSection.css';
 
 export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab }) {
   const canvasRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try {
@@ -62,18 +63,19 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
   };
 
   const runnerStateRef = useRef({
-    running: true,
+    running: false,
+    hasStarted: false,
     crashed: false,
     invulnerableTimer: 0,
     player: {
       x: 90,
-      y: 194,
+      y: 193,
       width: 22,
       height: 22,
       vy: 0,
       jumpForce: -11.2,
       gravity: 0.56,
-      groundY: 194,
+      groundY: 193,
       isGrounded: true,
       jumpCount: 0,
       maxJumps: 2,
@@ -88,30 +90,39 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     nextSpawn: 90,
   });
 
-  const triggerJump = () => {
+  const startOrJump = () => {
     const s = runnerStateRef.current;
-    if (s.crashed) {
-      // Respawn & restart
+
+    // 1. If not started yet or crashed, start clean new game
+    if (!s.hasStarted || s.crashed) {
+      s.hasStarted = true;
+      s.running = true;
       s.crashed = false;
       s.score = 0;
       s.obstacles = [];
       s.player.y = s.player.groundY;
-      s.player.vy = 0;
-      s.player.jumpCount = 0;
-      s.invulnerableTimer = 40;
+      s.player.vy = s.player.jumpForce;
+      s.player.isGrounded = false;
+      s.player.jumpCount = 1;
+      s.invulnerableTimer = 35;
+      s.spawnTimer = 0;
+      s.nextSpawn = 90;
       setScore(0);
       setIsGameOver(false);
-      s.running = true;
       setIsPlaying(true);
+      setHasStarted(true);
+      playRetroSound('jump');
       return;
     }
 
+    // 2. If paused, resume
     if (!s.running) {
       s.running = true;
       setIsPlaying(true);
       return;
     }
 
+    // 3. If running, perform jump / double jump
     if (s.player.jumpCount < s.player.maxJumps) {
       s.player.vy = s.player.jumpForce;
       s.player.isGrounded = false;
@@ -137,8 +148,12 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
   const toggleGameState = (e) => {
     if (e) e.stopPropagation();
     const s = runnerStateRef.current;
-    s.running = !s.running;
-    setIsPlaying(s.running);
+    if (!s.hasStarted || s.crashed) {
+      startOrJump();
+    } else {
+      s.running = !s.running;
+      setIsPlaying(s.running);
+    }
   };
 
   useEffect(() => {
@@ -178,7 +193,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
     const handleKeyDown = (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault();
-        triggerJump();
+        startOrJump();
       }
     };
 
@@ -211,10 +226,9 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       const selected = types[Math.floor(Math.random() * types.length)];
       const yPos = selected.fly ? groundY - 44 : groundY - selected.height;
 
-      // Ensure minimum distance from last obstacle
       const lastObs = s.obstacles[s.obstacles.length - 1];
       if (lastObs && lastObs.x > width - 260) {
-        return; // Don't spawn too close
+        return;
       }
 
       s.obstacles.push({
@@ -290,7 +304,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
             }
           }
 
-          // AABB Hitbox Collision Check
+          // Collision Check
           if (s.invulnerableTimer === 0) {
             const p = s.player;
             const padX = 5;
@@ -301,11 +315,14 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
               p.y + p.height - padY > obs.y &&
               p.y + padY < obs.y + obs.height
             ) {
-              // Player Hit / Out
+              // Player Hit
               createCrashExplosion(p.x + 11, p.y + 11);
               playRetroSound('hit');
               s.crashed = true;
+              s.running = false;
               setIsGameOver(true);
+              setIsPlaying(false);
+              setHasStarted(false);
 
               // Automatically take user to Book a Call!
               if (onOpenBookCallRef.current) {
@@ -335,7 +352,6 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
         ctx.shadowBlur = 10;
 
         if (obs.type === 'spike') {
-          // Neon Triangle Spike
           ctx.beginPath();
           ctx.moveTo(obs.x + obs.width / 2, obs.y);
           ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
@@ -343,7 +359,6 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           ctx.closePath();
           ctx.fill();
         } else if (obs.type === 'double-spike') {
-          // Double Spikes
           const half = obs.width / 2;
           ctx.beginPath();
           ctx.moveTo(obs.x + half / 2, obs.y);
@@ -359,7 +374,6 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           ctx.closePath();
           ctx.fill();
         } else if (obs.type === 'arrow') {
-          // Downward Chevron / Floating Obstacle
           ctx.beginPath();
           ctx.moveTo(obs.x, obs.y);
           ctx.lineTo(obs.x + obs.width / 2, obs.y + obs.height);
@@ -562,10 +576,10 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       {/* 2. 8-Bit Retro Runner Game Canvas Banner Below The Footer */}
       <div
         className="retro-runner-banner"
-        onClick={triggerJump}
+        onClick={startOrJump}
         role="button"
         tabIndex={0}
-        aria-label="Click or press Spacebar to jump"
+        aria-label="Click or press Spacebar to start or jump"
       >
         {/* Canvas Engine */}
         <canvas ref={canvasRef} className="retro-runner-canvas" />
@@ -580,18 +594,24 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
             </p>
           </div>
 
-          {/* Center: Retro 8-Bit Score Counter */}
+          {/* Center: Retro 8-Bit Score Counter & Dynamic Instruction */}
           <div className="runner-center-col">
             <div className="runner-score-row">
               <span className="runner-cross-symbol">x</span>
               <span className="runner-score-num">{score}</span>
             </div>
             <span className="runner-instructions">
-              {isGameOver ? 'CRASHED! CLICK TO RESPAWN' : 'JUMP RETRO OBSTACLES'}
+              {!hasStarted && !isGameOver
+                ? 'CLICK OR SPACE TO START'
+                : isGameOver
+                ? 'CRASHED! CLICK TO RESTART'
+                : !isPlaying
+                ? 'PAUSED · CLICK TO RESUME'
+                : 'JUMP RETRO OBSTACLES'}
             </span>
           </div>
 
-          {/* Right: STOP/PLAY Game & Social Links */}
+          {/* Right: START/STOP Game & Social Links */}
           <div className="runner-right-col">
             <div className="runner-bet-box">
               <button
@@ -599,7 +619,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 className="runner-stop-btn"
                 onClick={toggleGameState}
               >
-                <u>{isPlaying ? 'STOP' : 'PLAY'}</u> this game,
+                <u>{!hasStarted ? 'START' : isPlaying ? 'STOP' : 'RESUME'}</u> this game,
               </button>
               <h4 className="runner-bet-title">Bet you can win.</h4>
             </div>
