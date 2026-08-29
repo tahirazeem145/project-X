@@ -12,6 +12,7 @@ import VerifyCertificateModal from './components/VerifyCertificateModal';
 import InfoModal from './components/InfoModal';
 import ProjectDetailsModal from './components/ProjectDetailsModal';
 import DotGridCanvas from './components/DotGridCanvas';
+import MouseGlowCursor from './components/MouseGlowCursor';
 import './App.css';
 
 function App() {
@@ -37,6 +38,9 @@ function App() {
 
   return (
     <div className="app-wrapper">
+      {/* 2px White Glow Cursor Following Ring */}
+      <MouseGlowCursor />
+
       {/* Interactive Dot Grid Canvas with Mouse Ripple & Drift */}
       <DotGridCanvas />
 
