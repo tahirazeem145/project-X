@@ -1,31 +1,25 @@
 import React from 'react';
-import { Zap, GitFork, LifeBuoy, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Zap, GitFork, LifeBuoy } from 'lucide-react';
 
-export default function WhyWorkWithUsSection({ onOpenBookCall }) {
+export default function WhyWorkWithUsSection() {
   const valueProps = [
     {
       id: 'speed',
       icon: Zap,
-      iconColor: '#38bdf8',
       title: 'Launched in weeks, not months',
       desc: 'You see a working version early, then we ship. Most projects go live in four to eight weeks, so you can get it in front of real users fast.',
-      highlight: '4–8 Weeks Average Delivery',
     },
     {
       id: 'scalable',
       icon: GitFork,
-      iconColor: '#2dd4bf',
       title: 'Built to grow with you',
-      desc: 'Built on proven tools like React, Next.js & Laravel, structured to stay fast and easy to change as you add users. No throwaway code to rebuild in a year.',
-      highlight: 'Zero Technical Debt Architecture',
+      desc: 'Built on proven tools like Laravel, structured to stay fast and easy to change as you add users. No throwaway code to rebuild in a year.',
     },
     {
       id: 'support',
       icon: LifeBuoy,
-      iconColor: '#a855f7',
       title: "We're still here after launch",
       desc: 'When something breaks or you need a change, you reach the same people who built it. Support doesn’t stop at handover.',
-      highlight: 'Direct Senior Engineer Support',
     },
   ];
 
@@ -49,30 +43,16 @@ export default function WhyWorkWithUsSection({ onOpenBookCall }) {
             const IconComponent = item.icon;
             return (
               <div key={item.id} className="why-us-card">
-                {/* Icon Badge */}
-                <div
-                  className="why-us-icon-wrap"
-                  style={{
-                    boxShadow: `0 8px 25px -4px ${item.iconColor}33`,
-                    borderColor: `${item.iconColor}40`,
-                  }}
-                >
-                  <IconComponent size={22} color={item.iconColor} />
+                {/* Icon Squircle Badge */}
+                <div className="why-us-icon-wrap">
+                  <IconComponent size={20} className="why-us-icon-svg" />
                 </div>
 
-                {/* Content */}
-                <div className="why-us-card-content">
-                  <h3 className="why-us-card-title">{item.title}</h3>
-                  <p className="why-us-card-desc">{item.desc}</p>
-                </div>
+                {/* Card Title */}
+                <h3 className="why-us-card-title">{item.title}</h3>
 
-                {/* Footer Highlight Tag */}
-                <div className="why-us-card-footer">
-                  <span className="why-us-highlight-pill" style={{ color: item.iconColor }}>
-                    <CheckCircle2 size={13} />
-                    <span>{item.highlight}</span>
-                  </span>
-                </div>
+                {/* Card Description */}
+                <p className="why-us-card-desc">{item.desc}</p>
               </div>
             );
           })}

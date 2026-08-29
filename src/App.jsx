@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import StackedCards from './components/ui/glass-cards';
+import WhyWorkWithUsSection from './components/WhyWorkWithUsSection';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
@@ -62,6 +63,9 @@ function App() {
 
         {/* Our Work - Stacking Glass Cards with GSAP ScrollTrigger */}
         <StackedCards />
+
+        {/* Why Work With Us Section */}
+        <WhyWorkWithUsSection onOpenBookCall={() => setIsBookCallOpen(true)} />
       </main>
 
       {/* Fixed WhatsApp Floating Action Button */}
