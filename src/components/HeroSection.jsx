@@ -14,10 +14,6 @@ export default function HeroSection({ onGetQuote, onOpenReviewDetails }) {
 
   return (
     <section className="hero-section" aria-labelledby="hero-heading">
-      {/* Ambient background glows */}
-      <div className="ambient-glow glow-left" aria-hidden="true"></div>
-      <div className="ambient-glow glow-right" aria-hidden="true"></div>
-
       <div className="hero-content-wrapper">
         {/* Google review social proof badge */}
         <div className="hero-badge-row">
