@@ -249,7 +249,7 @@ export function ScrollReelTestimonials({
         position: "relative",
         display: "flex",
         width: "100%",
-        maxWidth: "1060px",
+        maxWidth: "100%",
         flexDirection: "row",
         alignItems: "stretch",
         gap: "10px",
@@ -348,7 +348,7 @@ export function ScrollReelTestimonials({
 
           {/* Text stage */}
           <div
-            style={{ position: "relative", width: "100%", maxWidth: "460px", overflow: "hidden" }}
+            style={{ position: "relative", width: "100%", maxWidth: "100%", overflow: "hidden" }}
             aria-live="polite"
           >
             <div
