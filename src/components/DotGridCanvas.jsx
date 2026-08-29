@@ -235,7 +235,7 @@ export default function DotGridCanvas() {
         }
       }
 
-      // 3. Render Luminous Fluid White Line (Mouse Trail Ribbon)
+      // 3. Render Luminous Fluid Electric Blue Line (Mouse Trail Ribbon)
       if (trail.length > 1) {
         ctx.save();
         ctx.lineCap = 'round';
@@ -262,20 +262,21 @@ export default function DotGridCanvas() {
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
 
-          // Outer soft glow
-          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
-          ctx.lineWidth = Math.max(0.8, progress * 2.8);
-          ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-          ctx.shadowBlur = 8 + progress * 6;
+          // Outer electric blue soft glow
+          ctx.strokeStyle = `rgba(0, 180, 216, ${alpha * 0.85})`;
+          ctx.lineWidth = Math.max(0.8, progress * 3.2);
+          ctx.shadowColor = 'rgba(0, 148, 232, 0.95)';
+          ctx.shadowBlur = 10 + progress * 8;
           ctx.stroke();
 
-          // Inner bright white core
+          // Inner bright cyan-blue core
           ctx.beginPath();
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.lineWidth = Math.max(0.5, progress * 1.6);
-          ctx.shadowBlur = 2;
+          ctx.strokeStyle = `rgba(56, 215, 255, ${alpha})`;
+          ctx.lineWidth = Math.max(0.6, progress * 1.8);
+          ctx.shadowColor = 'rgba(0, 180, 216, 1)';
+          ctx.shadowBlur = 4;
           ctx.stroke();
         }
 
@@ -283,10 +284,10 @@ export default function DotGridCanvas() {
         if (trail.length > 0) {
           const head = trail[trail.length - 1];
           ctx.beginPath();
-          ctx.arc(head.x, head.y, 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-          ctx.shadowColor = 'rgba(0, 180, 216, 0.95)';
-          ctx.shadowBlur = 12;
+          ctx.arc(head.x, head.y, 2.4, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(0, 212, 255, 0.98)';
+          ctx.shadowColor = 'rgba(0, 180, 216, 1)';
+          ctx.shadowBlur = 14;
           ctx.fill();
         }
 
