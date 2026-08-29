@@ -5,6 +5,7 @@ import StackedCards from './components/ui/glass-cards';
 import WhyWorkWithUsSection from './components/WhyWorkWithUsSection';
 import TestimonialsSection from './components/TestimonialsSection';
 import FAQ1 from './components/ui/faq-monocrhome';
+import CTASection from './components/CTASection';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
@@ -78,6 +79,9 @@ function App() {
 
         {/* Frequently Asked Questions (FAQ) Section */}
         <FAQ1 />
+
+        {/* Final CTA Banner Section */}
+        <CTASection onOpenBookCall={() => setIsBookCallOpen(true)} />
       </main>
 
       {/* Fixed WhatsApp Floating Action Button */}
