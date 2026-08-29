@@ -117,7 +117,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(15, 19, 27, 0.85) 60%, rgba(56, 189, 248, 0.04) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(0, 19, 27, 0.85) 60%, rgba(56, 189, 248, 0.04) 100%);
   backdrop-filter: blur(24px) saturate(200%);
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -127,11 +127,11 @@
     0 10px 30px -5px rgba(0, 0, 0, 0.5),
     0 0 25px rgba(56, 189, 248, 0.06);
   transition: 
-    max-width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    background 0.5s ease,
-    border-color 0.5s ease,
-    box-shadow 0.5s ease;
+    max-width 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: max-width, padding, box-shadow;
 }
 
@@ -179,7 +179,7 @@
 .navbar-brand {
   display: flex;
   align-items: center;
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 
@@ -187,7 +187,7 @@
   display: flex;
   align-items: center;
   gap: 32px;
-  transition: gap 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: gap 0.85s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-link-btn {
@@ -198,10 +198,10 @@
   padding: 6px 4px;
   position: relative;
   transition: 
-    font-size 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    color 0.2s ease, 
-    transform 0.2s ease;
+    font-size 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.25s ease, 
+    transform 0.25s ease;
   white-space: nowrap;
 }
 
@@ -239,12 +239,12 @@
     0 4px 20px rgba(12, 40, 52, 0.5),
     0 0 15px rgba(56, 189, 248, 0.2);
   transition: 
-    padding 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    font-size 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-    background 0.25s ease,
-    border-color 0.25s ease,
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+    padding 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    font-size 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.3s ease,
+    box-shadow 0.4s ease;
   letter-spacing: 0.1px;
   white-space: nowrap;
   will-change: padding, font-size, transform;
