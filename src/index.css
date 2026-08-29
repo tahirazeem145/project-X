@@ -12,21 +12,24 @@
   --text-body: #94a3b8;
   --text-muted: #64748b;
   
-  /* Brand Teal/Cyan */
-  --teal-primary: #22d3ee;
-  --teal-dark: #0ea5e9;
-  --teal-light: rgba(34, 211, 238, 0.12);
-  --teal-gradient: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  /* Brand Electric Blue to Turquoise Gradient Theme */
+  --teal-primary: #00b4d8;
+  --teal-dark: #0094e8;
+  --teal-accent: #17c3b2;
+  --teal-light: rgba(0, 180, 216, 0.14);
+  --teal-gradient: linear-gradient(90deg, #0094e8 0%, #00b4d8 35%, #00c9c8 70%, #17c3b2 100%);
+  --teal-gradient-diagonal: linear-gradient(135deg, #0094e8 0%, #00bcd4 45%, #1de9b6 100%);
+  --teal-glow: rgba(0, 180, 216, 0.35);
   
   /* CTA Buttons */
-  --navy-btn: #0f2b38;
-  --navy-btn-hover: #163d4f;
-  --navy-btn-active: #091d26;
+  --navy-btn: #091e2f;
+  --navy-btn-hover: #0c2b42;
+  --navy-btn-active: #061521;
 
   /* Card and border */
-  --border-light: rgba(255, 255, 255, 0.12);
+  --border-light: rgba(255, 255, 255, 0.14);
   --border-subtle: rgba(255, 255, 255, 0.06);
-  --card-bg: rgba(15, 18, 25, 0.75);
+  --card-bg: rgba(13, 19, 28, 0.78);
   --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
   --pill-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 
