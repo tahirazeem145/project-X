@@ -1,0 +1,94 @@
+import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import HeroSection from './components/HeroSection';
+import WhatsAppButton from './components/WhatsAppButton';
+import BookCallModal from './components/BookCallModal';
+import QuoteModal from './components/QuoteModal';
+import VerifyCertificateModal from './components/VerifyCertificateModal';
+import InfoModal from './components/InfoModal';
+import DotGridCanvas from './components/DotGridCanvas';
+import './App.css';
+
+function App() {
+  const [isBookCallOpen, setIsBookCallOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [isVerifyCertOpen, setIsVerifyCertOpen] = useState(false);
+  const [infoModalTab, setInfoModalTab] = useState(null);
+  const [quoteEmail, setQuoteEmail] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage('');
+    }, 4500);
+  };
+
+  const handleGetQuote = (email) => {
+    setQuoteEmail(email);
+    setIsQuoteModalOpen(true);
+  };
+
+  return (
+    <div className="app-wrapper">
+      {/* Interactive Dot Grid Canvas with Mouse Ripple & Drift */}
+      <DotGridCanvas />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <span className="toast-dot"></span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Main Header / Navigation */}
+      <Navbar
+        onOpenBookCall={() => setIsBookCallOpen(true)}
+        onOpenVerifyCert={() => setIsVerifyCertOpen(true)}
+        onOpenInfoTab={(tabKey) => setInfoModalTab(tabKey)}
+      />
+
+      {/* Main Hero Section matching user screenshot */}
+      <main>
+        <HeroSection
+          onGetQuote={handleGetQuote}
+          onOpenReviewDetails={() => setInfoModalTab('why-us')}
+        />
+      </main>
+
+      {/* Fixed WhatsApp Floating Action Button */}
+      <WhatsAppButton />
+
+      {/* Modals for complete interactive experience */}
+      <BookCallModal
+        isOpen={isBookCallOpen}
+        onClose={() => setIsBookCallOpen(false)}
+        onShowToast={showToast}
+      />
+
+      <QuoteModal
+        isOpen={isQuoteModalOpen}
+        initialEmail={quoteEmail}
+        onClose={() => setIsQuoteModalOpen(false)}
+        onShowToast={showToast}
+      />
+
+      <VerifyCertificateModal
+        isOpen={isVerifyCertOpen}
+        onClose={() => setIsVerifyCertOpen(false)}
+      />
+
+      <InfoModal
+        activeTab={infoModalTab}
+        onClose={() => setInfoModalTab(null)}
+        onOpenBookCall={() => {
+          setInfoModalTab(null);
+          setIsBookCallOpen(true);
+        }}
+      />
+    </div>
+  );
+}
+
+export default App;

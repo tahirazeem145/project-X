@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+
+  /* Dark Black Theme Colors */
+  --bg-primary: #07080b;
+  --bg-surface: #0e1117;
+  --bg-surface-elevated: #151922;
+  --text-dark: #f8fafc;
+  --text-body: #94a3b8;
+  --text-muted: #64748b;
+  
+  /* Brand Teal/Cyan */
+  --teal-primary: #22d3ee;
+  --teal-dark: #0ea5e9;
+  --teal-light: rgba(34, 211, 238, 0.12);
+  --teal-gradient: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+  
+  /* CTA Buttons */
+  --navy-btn: #0f2b38;
+  --navy-btn-hover: #163d4f;
+  --navy-btn-active: #091d26;
+
+  /* Card and border */
+  --border-light: rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --card-bg: rgba(15, 18, 25, 0.75);
+  --card-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --pill-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+
+  /* WhatsApp Green */
+  --whatsapp: #25d366;
+  --whatsapp-hover: #20ba5a;
+  --whatsapp-shadow: 0 8px 24px rgba(37, 211, 102, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input {
+  font-family: inherit;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+/* Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.08) translate(15px, -10px);
+    opacity: 0.55;
+  }
+}
+
+@keyframes pulseGlowRight {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.06) translate(-10px, 15px);
+    opacity: 0.5;
+  }
+}
+
+@keyframes floatBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalBackdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalContentZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 16px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
