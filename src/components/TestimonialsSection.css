@@ -10,10 +10,10 @@
 }
 
 .testimonials-container {
-  max-width: 1280px;
+  width: 80%;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 0 40px;
-  width: 100%;
+  padding: 0;
 }
 
 .testimonials-header {
@@ -78,15 +78,17 @@
   font-weight: 500;
 }
 
-/* Testimonial Card Container */
+/* Testimonial Card Container - Full 80% Container Width */
 .testimonials-card-wrapper {
-  max-width: 960px;
-  margin: 0 auto;
   width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .testimonial-card {
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
   background: 
     radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 75%),
@@ -279,6 +281,9 @@
 }
 
 .scroll-reel-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
   background: 
     radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 75%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(13, 17, 26, 0.8) 45%, rgba(18, 24, 36, 0.7) 85%, rgba(56, 189, 248, 0.04) 100%);
