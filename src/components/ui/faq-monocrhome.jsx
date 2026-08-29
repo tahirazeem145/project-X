@@ -99,6 +99,26 @@ export function FAQ1({ faqs = defaultFaqs }) {
         50% { transform: translateX(2px); opacity: 1; }
         100% { transform: translateX(20px); opacity: 0; }
       }
+      @keyframes whiteShadeSweepBiDirectional {
+        0% {
+          transform: translateX(-160%);
+          opacity: 0.1;
+        }
+        25% {
+          opacity: 0.85;
+        }
+        50% {
+          transform: translateX(240%);
+          opacity: 0.1;
+        }
+        75% {
+          opacity: 0.85;
+        }
+        100% {
+          transform: translateX(-160%);
+          opacity: 0.1;
+        }
+      }
       .faq1-intro {
         position: relative;
         display: flex;
@@ -179,17 +199,61 @@ export function FAQ1({ faqs = defaultFaqs }) {
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.14);
         border-top: 1px solid rgba(255, 255, 255, 0.3);
-        background: radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 75%), linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(13, 17, 26, 0.78) 45%, rgba(18, 24, 36, 0.68) 85%, rgba(0, 180, 216, 0.04) 100%);
+        background: 
+          radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 75%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(13, 17, 26, 0.82) 45%, rgba(18, 24, 36, 0.72) 85%, rgba(10, 14, 22, 0.9) 100%);
         backdrop-filter: blur(28px) saturate(200%);
         -webkit-backdrop-filter: blur(28px) saturate(200%);
-        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 16px 45px rgba(0, 0, 0, 0.5);
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 
+          inset 0 1px 1px rgba(255, 255, 255, 0.35),
+          0 16px 45px rgba(0, 0, 0, 0.5);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
       }
       .faq-card-item:hover {
-        transform: translateY(-4px);
-        border-color: rgba(0, 180, 216, 0.42);
-        border-top-color: rgba(255, 255, 255, 0.65);
-        box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 22px 55px rgba(0, 0, 0, 0.65), 0 0 35px rgba(0, 180, 216, 0.32), 0 0 70px rgba(0, 148, 232, 0.18);
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.24);
+        border-top-color: rgba(255, 255, 255, 0.5);
+        box-shadow: 
+          inset 0 1px 1px rgba(255, 255, 255, 0.45),
+          0 22px 55px rgba(0, 0, 0, 0.65);
+      }
+      .faq-card-item::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 55%;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.02) 20%,
+          rgba(255, 255, 255, 0.22) 50%,
+          rgba(255, 255, 255, 0.02) 80%,
+          transparent 100%
+        );
+        filter: blur(2px);
+        pointer-events: none;
+        z-index: 5;
+        animation: whiteShadeSweepBiDirectional 20s ease-in-out infinite;
+      }
+      .faq-bottom-blue-shade {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        pointer-events: none;
+        background: radial-gradient(ellipse 90% 80% at 50% 100%, rgba(0, 180, 216, 0.16) 0%, rgba(0, 148, 232, 0.06) 50%, transparent 80%);
+        border-bottom: 1px solid rgba(0, 180, 216, 0.25);
+        border-radius: 0 0 24px 24px;
+        transition: opacity 0.35s ease, height 0.35s ease;
+        z-index: 1;
+      }
+      .faq-card-item:hover .faq-bottom-blue-shade {
+        opacity: 1;
+        background: radial-gradient(ellipse 90% 85% at 50% 100%, rgba(0, 180, 216, 0.22) 0%, rgba(0, 148, 232, 0.09) 50%, transparent 80%);
+        border-bottom-color: rgba(0, 180, 216, 0.4);
       }
     `;
 
@@ -211,19 +275,6 @@ export function FAQ1({ faqs = defaultFaqs }) {
 
   const toggleQuestion = (index) =>
     setActiveIndex((prev) => (prev === index ? null : index));
-
-  const setCardGlow = (event) => {
-    const target = event.currentTarget;
-    const rect = target.getBoundingClientRect();
-    target.style.setProperty("--faq-x", `${event.clientX - rect.left}px`);
-    target.style.setProperty("--faq-y", `${event.clientY - rect.top}px`);
-  };
-
-  const clearCardGlow = (event) => {
-    const target = event.currentTarget;
-    target.style.removeProperty("--faq-x");
-    target.style.removeProperty("--faq-y");
-  };
 
   return (
     <section
@@ -321,20 +372,9 @@ export function FAQ1({ faqs = defaultFaqs }) {
               <li
                 key={item.question}
                 className="faq-card-item"
-                onMouseMove={setCardGlow}
-                onMouseLeave={clearCardGlow}
               >
-                {/* Mouse Radial Hover Glow */}
-                <div
-                  style={{
-                    pointerEvents: "none",
-                    position: "absolute",
-                    inset: 0,
-                    opacity: open ? 1 : 0,
-                    transition: "opacity 0.4s ease",
-                    background: `radial-gradient(280px circle at var(--faq-x, 50%) var(--faq-y, 50%), rgba(0, 180, 216, 0.15), transparent 70%)`,
-                  }}
-                />
+                {/* Bottom Blue Shade Gradient Layer */}
+                <div className="faq-bottom-blue-shade" aria-hidden="true" />
 
                 <button
                   type="button"
@@ -344,6 +384,7 @@ export function FAQ1({ faqs = defaultFaqs }) {
                   onClick={() => toggleQuestion(index)}
                   style={{
                     position: "relative",
+                    zIndex: 2,
                     display: "flex",
                     width: "100%",
                     alignItems: "flex-start",
