@@ -1,0 +1,291 @@
+/* ==========================================================================
+   Testimonials Section - Liquid Glass Social Proof
+   ========================================================================== */
+.testimonials-section {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 60px 20px 140px;
+  background: transparent;
+}
+
+.testimonials-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px;
+  width: 100%;
+}
+
+.testimonials-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.testimonials-eyebrow {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.testimonials-title {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 42px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1.2px;
+  margin-bottom: 36px;
+  line-height: 1.2;
+}
+
+/* Stats Row under Title (15+ Projects delivered | 100% Launched on schedule) */
+.testimonials-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 72px;
+  width: 100%;
+}
+
+.testimonials-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.testimonials-stat-value {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 44px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.testimonials-stat-label {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 14.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Testimonial Card Container */
+.testimonials-card-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+  background: 
+    radial-gradient(ellipse 90% 70% at 85% 15%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 75%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(13, 17, 26, 0.78) 45%, rgba(18, 24, 36, 0.68) 85%, rgba(56, 189, 248, 0.04) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 32px;
+  padding: 44px 48px;
+  box-shadow: 
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+    0 20px 55px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(56, 189, 248, 0.04);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+    0 26px 65px rgba(0, 0, 0, 0.65),
+    0 0 35px rgba(56, 189, 248, 0.08);
+}
+
+/* Card Top Row */
+.testimonial-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.testimonial-stars-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.star-icon.filled {
+  color: #fbbf24;
+  fill: #fbbf24;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+}
+
+.testimonial-verified-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #4ade80;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.verified-shield-icon {
+  color: #4ade80;
+}
+
+/* Testimonial Quote Text */
+.testimonial-body {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 32px;
+}
+
+.testimonial-paragraph {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 15.5px;
+  color: #cbd5e1;
+  line-height: 1.72;
+  margin-bottom: 18px;
+}
+
+.testimonial-paragraph:last-child {
+  margin-bottom: 0;
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+/* Testimonial Footer info */
+.testimonial-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.testimonial-client-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #38bdf8;
+}
+
+.testimonial-client-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.client-role {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.client-location {
+  font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.testimonial-project-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 9999px;
+}
+
+.project-check-icon {
+  color: #38bdf8;
+}
+
+/* Moving White Shade Sheen */
+.testimonial-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.02) 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.02) 80%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 5;
+  animation: whiteShadeSweep 20s ease-in-out infinite;
+}
+
+/* Responsive Rules */
+@media (max-width: 768px) {
+  .testimonials-container {
+    padding: 0 20px;
+  }
+
+  .testimonials-title {
+    font-size: 32px;
+  }
+
+  .testimonials-stats-row {
+    gap: 36px;
+  }
+
+  .testimonials-stat-value {
+    font-size: 36px;
+  }
+
+  .testimonial-card {
+    padding: 30px 24px;
+    border-radius: 26px;
+  }
+
+  .testimonial-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

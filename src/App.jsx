@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import StackedCards from './components/ui/glass-cards';
 import WhyWorkWithUsSection from './components/WhyWorkWithUsSection';
+import TestimonialsSection from './components/TestimonialsSection';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
@@ -66,6 +67,9 @@ function App() {
 
         {/* Why Work With Us Section */}
         <WhyWorkWithUsSection onOpenBookCall={() => setIsBookCallOpen(true)} />
+
+        {/* Testimonials Section */}
+        <TestimonialsSection />
       </main>
 
       {/* Fixed WhatsApp Floating Action Button */}
