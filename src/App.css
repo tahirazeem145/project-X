@@ -22,6 +22,82 @@
   padding: 20px 0 10px;
 }
 
+/* ==========================================================================
+   10-Second Moving White Shade Animation (Left-to-Right & Right-to-Left)
+   ========================================================================== */
+@keyframes whiteShadeSweep {
+  0% {
+    transform: translateX(-160%) skewX(-15deg);
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  32% {
+    transform: translateX(260%) skewX(-15deg);
+    opacity: 1;
+  }
+  36% {
+    opacity: 0;
+    transform: translateX(260%) skewX(-15deg);
+  }
+  50% {
+    transform: translateX(260%) skewX(15deg);
+    opacity: 0;
+  }
+  54% {
+    opacity: 1;
+  }
+  82% {
+    transform: translateX(-160%) skewX(15deg);
+    opacity: 1;
+  }
+  86% {
+    opacity: 0;
+    transform: translateX(-160%) skewX(15deg);
+  }
+  100% {
+    transform: translateX(-160%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+.google-review-badge,
+.quote-input-pill,
+.stats-card,
+.navbar-container,
+.info-item-card,
+.cert-card-result {
+  position: relative;
+  overflow: hidden;
+}
+
+.google-review-badge::after,
+.quote-input-pill::after,
+.stats-card::after,
+.navbar-container::after,
+.info-item-card::after,
+.cert-card-result::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 55%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.32) 50%,
+    rgba(255, 255, 255, 0.03) 80%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 5;
+  animation: whiteShadeSweep 10s ease-in-out infinite;
+}
+
 .navbar-container {
   max-width: 1280px;
   margin: 0 auto;
