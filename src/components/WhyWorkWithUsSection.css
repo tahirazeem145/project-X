@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Why Work With Us Section - Liquid Glass Value Cards
+   Why Work With Us Section - Sleek Dark Glass Cards
    ========================================================================== */
 .why-us-section {
   position: relative;
@@ -65,162 +65,75 @@
 
 .why-us-card {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.09) 0%, rgba(15, 19, 27, 0.92) 50%, rgba(56, 189, 248, 0.04) 100%);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 28px;
+  background: rgba(14, 19, 28, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 32px;
   padding: 38px 34px 42px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 290px;
+  min-height: 280px;
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 16px 45px rgba(0, 0, 0, 0.55),
-    0 0 25px rgba(56, 189, 248, 0.05);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 12px 35px rgba(0, 0, 0, 0.45);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   cursor: pointer;
 }
 
-/* Liquid Glass Top Reflection & Specular Lines */
-.card-liquid-shine-line {
-  position: absolute;
-  top: 10px;
-  left: 14px;
-  right: 14px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
-  border-radius: 1px;
-  pointer-events: none;
-  z-index: 2;
-  transition: opacity 0.3s ease;
-}
-
-.card-liquid-reflection-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%);
-  pointer-events: none;
-  border-radius: 28px 28px 0 0;
-  z-index: 1;
-  transition: opacity 0.3s ease;
-}
-
-/* Subtle Refined Border Glow on Mouse Hover */
 .why-us-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(56, 189, 248, 0.45);
+  transform: translateY(-4px);
+  background: rgba(17, 24, 36, 0.85);
+  border-color: rgba(255, 255, 255, 0.32);
   box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.45),
-    0 0 18px rgba(56, 189, 248, 0.12),
-    0 18px 45px rgba(0, 0, 0, 0.65);
-}
-
-.why-us-card:hover .card-liquid-shine-line {
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
-}
-
-.why-us-card:hover .card-liquid-reflection-overlay {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(56, 189, 248, 0.04) 50%, transparent 100%);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    0 16px 45px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(255, 255, 255, 0.05);
 }
 
 .why-us-icon-wrap {
-  position: relative;
-  z-index: 3;
-  width: 48px;
-  height: 48px;
-  border-radius: 13px;
-  background: #09131d;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 28px;
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    0 6px 16px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-bottom: 26px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
   color: #ffffff;
 }
 
 .why-us-icon-svg {
   color: #ffffff;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .why-us-card:hover .why-us-icon-wrap {
-  background: #0c1a27;
-  border-color: rgba(56, 189, 248, 0.55);
-  box-shadow: 
-    inset 0 1px 1px rgba(255, 255, 255, 0.4),
-    0 0 12px rgba(56, 189, 248, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
   transform: scale(1.04);
 }
 
-.why-us-card:hover .why-us-icon-svg {
-  transform: scale(1.05);
-  color: #38bdf8;
-}
-
 .why-us-card-title {
-  position: relative;
-  z-index: 3;
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 700;
   color: #ffffff;
   margin-bottom: 14px;
   line-height: 1.35;
-  transition: color 0.3s ease;
-}
-
-.why-us-card:hover .why-us-card-title {
-  color: #ffffff;
-  text-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
 }
 
 .why-us-card-desc {
-  position: relative;
-  z-index: 3;
   font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif);
   font-size: 15px;
   color: #94a3b8;
   line-height: 1.62;
   margin: 0;
-  transition: color 0.3s ease;
-}
-
-.why-us-card:hover .why-us-card-desc {
-  color: #cbd5e1;
-}
-
-/* Moving White Shade Sheen */
-.why-us-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 55%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.03) 20%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0.03) 80%,
-    transparent 100%
-  );
-  filter: blur(2px);
-  pointer-events: none;
-  z-index: 5;
-  animation: whiteShadeSweep 20s ease-in-out infinite;
 }
 
 /* Responsive Rules */
@@ -246,5 +159,6 @@
   
   .why-us-card {
     padding: 30px 24px;
+    border-radius: 26px;
   }
 }

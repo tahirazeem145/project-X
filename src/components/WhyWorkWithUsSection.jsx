@@ -9,21 +9,18 @@ export default function WhyWorkWithUsSection() {
       icon: Zap,
       title: 'Launched in weeks, not months',
       desc: 'You see a working version early, then we ship. Most projects go live in four to eight weeks, so you can get it in front of real users fast.',
-      accentColor: '#38bdf8',
     },
     {
       id: 'scalable',
       icon: GitFork,
       title: 'Built to grow with you',
       desc: 'Built on proven tools like Laravel, structured to stay fast and easy to change as you add users. No throwaway code to rebuild in a year.',
-      accentColor: '#2dd4bf',
     },
     {
       id: 'support',
       icon: LifeBuoy,
       title: "We're still here after launch",
       desc: 'When something breaks or you need a change, you reach the same people who built it. Support doesn’t stop at handover.',
-      accentColor: '#a855f7',
     },
   ];
 
@@ -46,14 +43,10 @@ export default function WhyWorkWithUsSection() {
           {valueProps.map((item) => {
             const IconComponent = item.icon;
             return (
-              <div key={item.id} className="why-us-card" data-accent={item.accentColor}>
-                {/* Liquid Glass Top Specular Shine */}
-                <div className="card-liquid-shine-line" />
-                <div className="card-liquid-reflection-overlay" />
-
+              <div key={item.id} className="why-us-card">
                 {/* Icon Squircle Badge */}
                 <div className="why-us-icon-wrap">
-                  <IconComponent size={21} className="why-us-icon-svg" />
+                  <IconComponent size={20} className="why-us-icon-svg" />
                 </div>
 
                 {/* Card Title */}
