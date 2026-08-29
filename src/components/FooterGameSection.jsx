@@ -447,87 +447,7 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
   return (
     <footer className="footer-section">
-      {/* 8-Bit Retro Runner Game Canvas Banner */}
-      <div
-        className="retro-runner-banner"
-        onClick={triggerJump}
-        role="button"
-        tabIndex={0}
-        aria-label="Click or press Spacebar to jump"
-      >
-        {/* Canvas Engine */}
-        <canvas ref={canvasRef} className="retro-runner-canvas" />
-
-        {/* UI Overlay Content matching exact reference image */}
-        <div className="retro-runner-overlay">
-          {/* Left: Watermark Brand Title */}
-          <div className="runner-left-col">
-            <h3 className="runner-brand-watermark">JIME DEVELOPERS</h3>
-            <p className="runner-created-by">
-              Created by <strong>Jime Developers</strong> © 2026
-            </p>
-          </div>
-
-          {/* Center: Retro 8-Bit Score Counter */}
-          <div className="runner-center-col">
-            <div className="runner-score-row">
-              <span className="runner-cross-symbol">x</span>
-              <span className="runner-score-num">{score}</span>
-            </div>
-            <span className="runner-instructions">
-              {isGameOver ? 'CRASHED! CLICK TO RESPAWN' : 'JUMP RETRO OBSTACLES'}
-            </span>
-          </div>
-
-          {/* Right: STOP/PLAY Game & Social Links */}
-          <div className="runner-right-col">
-            <div className="runner-bet-box">
-              <button
-                type="button"
-                className="runner-stop-btn"
-                onClick={toggleGameState}
-              >
-                <u>{isPlaying ? 'STOP' : 'PLAY'}</u> this game,
-              </button>
-              <h4 className="runner-bet-title">Bet you can win.</h4>
-            </div>
-
-            <div className="runner-social-links">
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="runner-social-item"
-                onClick={(e) => e.stopPropagation()}
-              >
-                LinkedIn
-              </a>
-              <span className="runner-social-pipe">|</span>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="runner-social-item"
-                onClick={(e) => e.stopPropagation()}
-              >
-                GitHub
-              </a>
-              <span className="runner-social-pipe">|</span>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="runner-social-item"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Instagram
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Studio Navigation Footer */}
+      {/* 1. Main Studio Navigation Footer Above */}
       <div className="footer-container">
         <div className="footer-main-grid">
           {/* Column 1: Brand & Info */}
@@ -636,6 +556,86 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           <p className="footer-copyright">
             © 2026 Jime Developers. All rights reserved.
           </p>
+        </div>
+      </div>
+
+      {/* 2. 8-Bit Retro Runner Game Canvas Banner Below The Footer */}
+      <div
+        className="retro-runner-banner"
+        onClick={triggerJump}
+        role="button"
+        tabIndex={0}
+        aria-label="Click or press Spacebar to jump"
+      >
+        {/* Canvas Engine */}
+        <canvas ref={canvasRef} className="retro-runner-canvas" />
+
+        {/* UI Overlay Content matching exact reference image */}
+        <div className="retro-runner-overlay">
+          {/* Left: Watermark Brand Title */}
+          <div className="runner-left-col">
+            <h3 className="runner-brand-watermark">JIME DEVELOPERS</h3>
+            <p className="runner-created-by">
+              Created by <strong>Jime Developers</strong> © 2026
+            </p>
+          </div>
+
+          {/* Center: Retro 8-Bit Score Counter */}
+          <div className="runner-center-col">
+            <div className="runner-score-row">
+              <span className="runner-cross-symbol">x</span>
+              <span className="runner-score-num">{score}</span>
+            </div>
+            <span className="runner-instructions">
+              {isGameOver ? 'CRASHED! CLICK TO RESPAWN' : 'JUMP RETRO OBSTACLES'}
+            </span>
+          </div>
+
+          {/* Right: STOP/PLAY Game & Social Links */}
+          <div className="runner-right-col">
+            <div className="runner-bet-box">
+              <button
+                type="button"
+                className="runner-stop-btn"
+                onClick={toggleGameState}
+              >
+                <u>{isPlaying ? 'STOP' : 'PLAY'}</u> this game,
+              </button>
+              <h4 className="runner-bet-title">Bet you can win.</h4>
+            </div>
+
+            <div className="runner-social-links">
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
+              >
+                LinkedIn
+              </a>
+              <span className="runner-social-pipe">|</span>
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
+              >
+                GitHub
+              </a>
+              <span className="runner-social-pipe">|</span>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="runner-social-item"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Instagram
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
