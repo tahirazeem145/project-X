@@ -7,6 +7,7 @@ import TestimonialsSection from './components/TestimonialsSection';
 import FAQ1 from './components/ui/faq-monocrhome';
 import BlogSection from './components/BlogSection';
 import CTASection from './components/CTASection';
+import FooterGameSection from './components/FooterGameSection';
 import WhatsAppButton from './components/WhatsAppButton';
 import BookCallModal from './components/BookCallModal';
 import QuoteModal from './components/QuoteModal';
@@ -87,6 +88,13 @@ function App() {
         {/* Final CTA Banner Section */}
         <CTASection onOpenBookCall={() => setIsBookCallOpen(true)} />
       </main>
+
+      {/* Footer with Cyber Arcade Easter Egg Mini-Game */}
+      <FooterGameSection
+        onOpenBookCall={() => setIsBookCallOpen(true)}
+        onOpenVerifyCert={() => setIsVerifyCertOpen(true)}
+        onOpenInfoTab={(tabKey) => setInfoModalTab(tabKey)}
+      />
 
       {/* Fixed WhatsApp Floating Action Button */}
       <WhatsAppButton />
