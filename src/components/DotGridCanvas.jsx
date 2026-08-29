@@ -18,15 +18,17 @@ export default function DotGridCanvas() {
     let totalGridWidth = 0;
     let totalGridHeight = 0;
 
-    // Mouse tracking with fluid interpolation
+    // Mouse tracking & trail points
     const mouse = {
       x: -1000,
       y: -1000,
       targetX: -1000,
       targetY: -1000,
-      radius: 90,
-      lightRadius: 260, // Radius of the white spotlight
+      connectRadius: 135, // Distance to connect white lines to dots
     };
+
+    // Trailing path of mouse movements
+    let mouseTrail = [];
 
     // Active radiating ripple waves
     let ripples = [];
@@ -82,12 +84,21 @@ export default function DotGridCanvas() {
       mouse.targetX = e.clientX;
       mouse.targetY = e.clientY;
 
+      // Add point to smooth mouse trail
+      mouseTrail.push({
+        x: e.clientX,
+        y: e.clientY,
+        life: 1.0,
+      });
+      if (mouseTrail.length > 25) {
+        mouseTrail.shift();
+      }
+
       const now = performance.now();
       const dx = e.clientX - lastMousePos.x;
       const dy = e.clientY - lastMousePos.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      // Trigger ripple wave on movement
       if (dist > 16 || now - lastRippleTime > 120) {
         spawnRipple(e.clientX, e.clientY, 150, Math.min(1.2, Math.max(0.6, dist / 25)));
         lastMousePos = { x: e.clientX, y: e.clientY };
@@ -98,6 +109,7 @@ export default function DotGridCanvas() {
     const handleMouseLeave = () => {
       mouse.targetX = -1000;
       mouse.targetY = -1000;
+      mouseTrail = [];
     };
 
     const handleClick = (e) => {
@@ -109,6 +121,15 @@ export default function DotGridCanvas() {
         const touch = e.touches[0];
         mouse.targetX = touch.clientX;
         mouse.targetY = touch.clientY;
+
+        mouseTrail.push({
+          x: touch.clientX,
+          y: touch.clientY,
+          life: 1.0,
+        });
+        if (mouseTrail.length > 25) {
+          mouseTrail.shift();
+        }
 
         const now = performance.now();
         const dx = touch.clientX - lastMousePos.x;
@@ -126,6 +147,7 @@ export default function DotGridCanvas() {
     const handleTouchEnd = () => {
       mouse.targetX = -1000;
       mouse.targetY = -1000;
+      mouseTrail = [];
     };
 
     window.addEventListener('resize', handleResize);
@@ -143,49 +165,37 @@ export default function DotGridCanvas() {
 
     const render = () => {
       // Fluid mouse easing
-      mouse.x += (mouse.targetX - mouse.x) * 0.15;
-      mouse.y += (mouse.targetY - mouse.y) * 0.15;
+      mouse.x += (mouse.targetX - mouse.x) * 0.18;
+      mouse.y += (mouse.targetY - mouse.y) * 0.18;
 
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Draw White Cursor Spotlight Glow where mouse is moving
-      if (mouse.x > -200 && mouse.y > -200) {
-        // Outer soft ambient white glow
-        const outerGlow = ctx.createRadialGradient(
-          mouse.x,
-          mouse.y,
-          0,
-          mouse.x,
-          mouse.y,
-          mouse.lightRadius
-        );
-        outerGlow.addColorStop(0, 'rgba(255, 255, 255, 0.13)');
-        outerGlow.addColorStop(0.35, 'rgba(255, 255, 255, 0.05)');
-        outerGlow.addColorStop(0.7, 'rgba(56, 189, 248, 0.02)');
-        outerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      // 1. Update and draw smooth white trail line following cursor path
+      if (mouseTrail.length > 1) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
 
-        ctx.fillStyle = outerGlow;
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, mouse.lightRadius, 0, Math.PI * 2);
-        ctx.fill();
+        for (let t = 0; t < mouseTrail.length - 1; t++) {
+          const p1 = mouseTrail[t];
+          const p2 = mouseTrail[t + 1];
+          p1.life *= 0.92; // fade over time
 
-        // Inner bright white luminous core
-        const coreGlow = ctx.createRadialGradient(
-          mouse.x,
-          mouse.y,
-          0,
-          mouse.x,
-          mouse.y,
-          75
-        );
-        coreGlow.addColorStop(0, 'rgba(255, 255, 255, 0.22)');
-        coreGlow.addColorStop(0.5, 'rgba(255, 255, 255, 0.08)');
-        coreGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          if (p1.life > 0.05) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${p1.life * 0.75})`;
+            ctx.lineWidth = (t / mouseTrail.length) * 2.5 + 0.5;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+            ctx.shadowBlur = 6;
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
 
-        ctx.fillStyle = coreGlow;
-        ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 75, 0, Math.PI * 2);
-        ctx.fill();
+        // Clean up faded points
+        mouseTrail = mouseTrail.filter((p) => p.life > 0.05);
       }
 
       // 2. Update active ripple waves
@@ -199,11 +209,14 @@ export default function DotGridCanvas() {
         }
       }
 
-      // 3. Update and render dots
+      // Store nearby dots for inter-dot white connecting lines
+      const nearbyDots = [];
+
+      // 3. Update physics and collect dots
       for (let i = 0; i < dots.length; i++) {
         const dot = dots[i];
 
-        // Smooth continuous drift forward
+        // Continuous slow drift
         dot.baseX += driftSpeedX;
         dot.baseY += driftSpeedY;
 
@@ -220,17 +233,6 @@ export default function DotGridCanvas() {
         let totalPushX = 0;
         let totalPushY = 0;
         let maxGlow = 0;
-
-        // Distance from mouse spotlight
-        const dxMouse = mouse.x - dot.x;
-        const dyMouse = mouse.y - dot.y;
-        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-
-        // White light illumination factor based on mouse proximity
-        let mouseIllumination = 0;
-        if (distMouse < mouse.lightRadius && mouse.x > 0 && mouse.y > 0) {
-          mouseIllumination = (1 - distMouse / mouse.lightRadius);
-        }
 
         // Apply ripple waves displacement
         for (let r = 0; r < ripples.length; r++) {
@@ -257,11 +259,11 @@ export default function DotGridCanvas() {
           }
         }
 
-        // Apply wave impulse to velocity
+        // Apply wave impulse
         dot.vx += totalPushX * 0.15;
         dot.vy += totalPushY * 0.15;
 
-        // Spring force returning to base grid position
+        // Spring returning to base grid
         const springX = (dot.baseX - dot.x) * 0.08;
         const springY = (dot.baseY - dot.y) * 0.08;
 
@@ -271,24 +273,83 @@ export default function DotGridCanvas() {
         dot.x += dot.vx;
         dot.y += dot.vy;
 
-        // Size & Color glow
         dot.glow += (maxGlow - dot.glow) * 0.2;
-        const currentSize = dot.baseSize + dot.glow * 0.8 + mouseIllumination * 0.6;
-        const alpha = Math.min(1, 0.20 + dot.glow * 0.5 + mouseIllumination * 0.65);
 
-        // Render dot
+        // Check if dot is near the moving mouse
+        if (mouse.x > 0 && mouse.y > 0) {
+          const dxM = mouse.x - dot.x;
+          const dyM = mouse.y - dot.y;
+          const distM = Math.sqrt(dxM * dxM + dyM * dyM);
+
+          if (distM < mouse.connectRadius) {
+            nearbyDots.push({ dot, dist: distM });
+          }
+        }
+      }
+
+      // 4. DRAW WHITE CONNECTING LINES FROM MOUSE TO NEARBY DOTS
+      if (mouse.x > 0 && mouse.y > 0 && nearbyDots.length > 0) {
+        ctx.save();
+        ctx.lineWidth = 1.2;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+        ctx.shadowBlur = 4;
+
+        // Connect mouse to each nearby dot with crisp white lines
+        for (let n = 0; n < nearbyDots.length; n++) {
+          const { dot, dist } = nearbyDots[n];
+          const lineAlpha = (1 - dist / mouse.connectRadius) * 0.75;
+
+          ctx.beginPath();
+          ctx.moveTo(mouse.x, mouse.y);
+          ctx.lineTo(dot.x, dot.y);
+          ctx.strokeStyle = `rgba(255, 255, 255, ${lineAlpha})`;
+          ctx.stroke();
+        }
+
+        // Also connect neighboring dots to each other within the cursor field
+        ctx.lineWidth = 0.8;
+        for (let a = 0; a < nearbyDots.length; a++) {
+          for (let b = a + 1; b < nearbyDots.length; b++) {
+            const d1 = nearbyDots[a].dot;
+            const d2 = nearbyDots[b].dot;
+            const dx = d1.x - d2.x;
+            const dy = d1.y - d2.y;
+            const distBetween = Math.sqrt(dx * dx + dy * dy);
+
+            if (distBetween < spacing * 1.5) {
+              const meshAlpha =
+                (1 - distBetween / (spacing * 1.5)) *
+                (1 - (nearbyDots[a].dist + nearbyDots[b].dist) / (2 * mouse.connectRadius)) *
+                0.5;
+
+              if (meshAlpha > 0.02) {
+                ctx.beginPath();
+                ctx.moveTo(d1.x, d1.y);
+                ctx.lineTo(d2.x, d2.y);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${meshAlpha})`;
+                ctx.stroke();
+              }
+            }
+          }
+        }
+
+        ctx.restore();
+      }
+
+      // 5. Draw dots
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+
         if (dot.x >= -spacing && dot.x <= width + spacing && dot.y >= -spacing && dot.y <= height + spacing) {
+          const currentSize = dot.baseSize + dot.glow * 0.8;
+          const alpha = 0.20 + dot.glow * 0.55;
+
           ctx.beginPath();
           ctx.arc(dot.x, dot.y, Math.max(0.5, currentSize), 0, Math.PI * 2);
 
-          if (mouseIllumination > 0.4) {
-            // Bright white light highlight under mouse
-            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-          } else if (dot.glow > 0.05) {
-            // Ripple wave cyan highlight
+          if (dot.glow > 0.05) {
             ctx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
           } else {
-            // Normal dot
             ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
           }
           ctx.fill();
