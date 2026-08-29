@@ -23,21 +23,21 @@
 }
 
 /* ==========================================================================
-   10-Second Moving White Shade Animation (Left-to-Right & Right-to-Left)
+   Slow Moving White Shade Animation (Left-to-Right & Right-to-Left)
    ========================================================================== */
 @keyframes whiteShadeSweep {
   0% {
     transform: translateX(-160%) skewX(-15deg);
     opacity: 0;
   }
-  4% {
+  3% {
     opacity: 1;
   }
-  32% {
+  42% {
     transform: translateX(260%) skewX(-15deg);
     opacity: 1;
   }
-  36% {
+  46% {
     opacity: 0;
     transform: translateX(260%) skewX(-15deg);
   }
@@ -45,14 +45,14 @@
     transform: translateX(260%) skewX(15deg);
     opacity: 0;
   }
-  54% {
+  53% {
     opacity: 1;
   }
-  82% {
+  92% {
     transform: translateX(-160%) skewX(15deg);
     opacity: 1;
   }
-  86% {
+  96% {
     opacity: 0;
     transform: translateX(-160%) skewX(15deg);
   }
@@ -88,14 +88,14 @@
     90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.03) 20%,
-    rgba(255, 255, 255, 0.32) 50%,
+    rgba(255, 255, 255, 0.3) 50%,
     rgba(255, 255, 255, 0.03) 80%,
     transparent 100%
   );
   filter: blur(2px);
   pointer-events: none;
   z-index: 5;
-  animation: whiteShadeSweep 10s ease-in-out infinite;
+  animation: whiteShadeSweep 20s ease-in-out infinite;
 }
 
 .navbar-container {
@@ -254,35 +254,34 @@
   overflow: hidden;
 }
 
-/* Morphing Liquid Ambient Glow Blobs */
-@keyframes liquidMorphLeft {
-  0%, 100% {
-    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 0.35;
+/* Slow Floating Ambient White Shades */
+@keyframes slowWhiteShadeDriftLeft {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.12;
   }
-  33% {
-    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
-    transform: translate(25px, -15px) rotate(45deg) scale(1.08);
-    opacity: 0.5;
+  50% {
+    transform: translate(60px, -40px) scale(1.12);
+    opacity: 0.18;
   }
-  66% {
-    border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
-    transform: translate(-15px, 20px) rotate(-30deg) scale(0.95);
-    opacity: 0.4;
+  100% {
+    transform: translate(-30px, 30px) scale(0.95);
+    opacity: 0.12;
   }
 }
 
-@keyframes liquidMorphRight {
-  0%, 100% {
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 0.3;
+@keyframes slowWhiteShadeDriftRight {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.10;
   }
   50% {
-    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-    transform: translate(-20px, 15px) rotate(35deg) scale(1.06);
-    opacity: 0.45;
+    transform: translate(-50px, 45px) scale(1.15);
+    opacity: 0.16;
+  }
+  100% {
+    transform: translate(40px, -25px) scale(0.96);
+    opacity: 0.10;
   }
 }
 
@@ -290,26 +289,27 @@
   position: absolute;
   pointer-events: none;
   z-index: 1;
+  border-radius: 50%;
 }
 
 .glow-left {
-  width: 560px;
-  height: 560px;
-  left: 6%;
-  top: 12%;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.28) 0%, rgba(14, 165, 233, 0.05) 50%, rgba(14, 165, 233, 0) 70%);
-  filter: blur(60px);
-  animation: liquidMorphLeft 14s ease-in-out infinite alternate;
+  width: 620px;
+  height: 620px;
+  left: 5%;
+  top: 10%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(80px);
+  animation: slowWhiteShadeDriftLeft 24s ease-in-out infinite alternate;
 }
 
 .glow-right {
-  width: 580px;
-  height: 580px;
+  width: 640px;
+  height: 640px;
   right: 5%;
-  top: 28%;
-  background: radial-gradient(circle, rgba(45, 212, 191, 0.24) 0%, rgba(45, 212, 191, 0.05) 50%, rgba(45, 212, 191, 0) 70%);
-  filter: blur(70px);
-  animation: liquidMorphRight 16s ease-in-out infinite alternate;
+  top: 25%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0) 70%);
+  filter: blur(85px);
+  animation: slowWhiteShadeDriftRight 28s ease-in-out infinite alternate;
 }
 
 .hero-content-wrapper {
