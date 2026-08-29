@@ -1,102 +1,210 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, Trophy, Sparkles, Volume2, VolumeX, Shield, Zap, Heart, ArrowUpRight } from 'lucide-react';
+import {
+  Play,
+  RotateCcw,
+  Trophy,
+  Sparkles,
+  Volume2,
+  VolumeX,
+  Heart,
+  ArrowUpRight,
+  Gamepad2,
+  Layers,
+  Flame,
+  Rocket
+} from 'lucide-react';
 import './FooterGameSection.css';
 
 export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, onOpenInfoTab }) {
-  const canvasRef = useRef(null);
+  const [activeGame, setActiveGame] = useState('brick'); // 'brick' | 'snake' | 'space'
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [isGameWon, setIsGameWon] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try {
-      return parseInt(localStorage.getItem('jime_game_highscore') || '0', 10);
+      return parseInt(localStorage.getItem('jime_game_brick_high') || '0', 10);
     } catch {
       return 0;
     }
   });
   const [lives, setLives] = useState(3);
-  const [hasUnlockedDiscount, setHasUnlockedDiscount] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [unlockedReward, setUnlockedReward] = useState(false);
 
-  const gameStateRef = useRef({
-    player: { x: 300, y: 340, width: 32, height: 26, speed: 6, vx: 0 },
-    lasers: [],
-    enemies: [],
-    particles: [],
-    stars: [],
-    lastShot: 0,
-    enemySpawnTimer: 0,
-    keys: {},
-    mousePos: { x: 300, y: 340 },
-    score: 0,
-    lives: 3,
-    running: false,
-  });
+  const canvasRef = useRef(null);
 
-  // Sound Synth using Web Audio API
+  // Web Audio Synthesizer
   const playSound = (type) => {
     if (!soundEnabled) return;
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      if (type === 'laser') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(800, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.12);
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+      if (type === 'bounce') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, ctx.currentTime);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
         osc.start();
-        osc.stop(ctx.currentTime + 0.12);
-      } else if (type === 'hit') {
+        osc.stop(ctx.currentTime + 0.08);
+      } else if (type === 'brick') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        osc.frequency.setValueAtTime(600 + Math.random() * 200, ctx.currentTime);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.1);
+      } else if (type === 'powerup') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
         osc.start();
         osc.stop(ctx.currentTime + 0.2);
-      } else if (type === 'unlock') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); // G5
-        osc.frequency.setValueAtTime(1046.5, ctx.currentTime + 0.24); // C6
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+      } else if (type === 'hit') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
         osc.start();
-        osc.stop(ctx.currentTime + 0.4);
+        osc.stop(ctx.currentTime + 0.25);
+      } else if (type === 'win') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, ctx.currentTime);
+        osc.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+        osc.frequency.setValueAtTime(1046, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
       }
     } catch {
-      // AudioContext not supported
+      /* AudioContext not supported */
     }
   };
 
-  const startGame = () => {
+  // State Engine Ref for 60fps Loop
+  const engineRef = useRef({
+    running: false,
+    game: 'brick',
+    width: 600,
+    height: 380,
+    mousePos: { x: 300, y: 340 },
+    keys: {},
+
+    // Brick Breaker State
+    paddle: { x: 250, y: 350, width: 90, height: 12, speed: 8 },
+    balls: [{ x: 300, y: 330, vx: 4, vy: -4, radius: 6 }],
+    bricks: [],
+    powerups: [],
+    particles: [],
+
+    // Snake State
+    snake: [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }],
+    snakeDir: { x: 1, y: 0 },
+    nextDir: { x: 1, y: 0 },
+    food: { x: 15, y: 10 },
+    snakeSpeed: 90,
+    lastSnakeStep: 0,
+    gridCols: 30,
+    gridRows: 19,
+
+    // Space State
+    player: { x: 300, y: 340, width: 32, height: 26 },
+    lasers: [],
+    enemies: [],
+    lastShot: 0,
+    enemySpawnTimer: 0,
+  });
+
+  // Init Bricks Helper
+  const initBricks = () => {
+    const bricks = [];
+    const rows = 5;
+    const cols = 8;
+    const brickWidth = 60;
+    const brickHeight = 18;
+    const padding = 8;
+    const offsetTop = 40;
+    const offsetLeft = (600 - (cols * brickWidth + (cols - 1) * padding)) / 2;
+
+    const rowColors = [
+      { color: '#00b4d8', points: 50 },
+      { color: '#17c3b2', points: 40 },
+      { color: '#38bdf8', points: 30 },
+      { color: '#f59e0b', points: 20 },
+      { color: '#a855f7', points: 10 },
+    ];
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = offsetLeft + c * (brickWidth + padding);
+        const y = offsetTop + r * (brickHeight + padding);
+        bricks.push({
+          x,
+          y,
+          width: brickWidth,
+          height: brickHeight,
+          color: rowColors[r].color,
+          points: rowColors[r].points,
+          alive: true,
+        });
+      }
+    }
+    return bricks;
+  };
+
+  const handleStartGame = () => {
+    const e = engineRef.current;
+    e.game = activeGame;
+    e.running = true;
     setIsPlaying(true);
     setIsGameOver(false);
+    setIsGameWon(false);
     setScore(0);
     setLives(3);
 
-    const state = gameStateRef.current;
-    state.player.x = 300;
-    state.player.y = 340;
-    state.lasers = [];
-    state.enemies = [];
-    state.particles = [];
-    state.score = 0;
-    state.lives = 3;
-    state.running = true;
-    state.enemySpawnTimer = 0;
+    if (activeGame === 'brick') {
+      e.paddle = { x: 255, y: 350, width: 90, height: 12, speed: 8 };
+      e.balls = [{ x: 300, y: 335, vx: (Math.random() > 0.5 ? 4 : -4), vy: -4.5, radius: 6 }];
+      e.bricks = initBricks();
+      e.powerups = [];
+      e.particles = [];
+    } else if (activeGame === 'snake') {
+      e.snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+      e.snakeDir = { x: 1, y: 0 };
+      e.nextDir = { x: 1, y: 0 };
+      e.food = {
+        x: Math.floor(Math.random() * (e.gridCols - 2)) + 1,
+        y: Math.floor(Math.random() * (e.gridRows - 2)) + 1,
+      };
+      e.lastSnakeStep = Date.now();
+    } else if (activeGame === 'space') {
+      e.player = { x: 300, y: 340, width: 32, height: 26 };
+      e.lasers = [];
+      e.enemies = [];
+      e.particles = [];
+      e.enemySpawnTimer = 0;
+    }
   };
 
-  const restartGame = () => {
-    startGame();
+  const switchGame = (gameKey) => {
+    setActiveGame(gameKey);
+    setIsPlaying(false);
+    setIsGameOver(false);
+    setIsGameWon(false);
+    engineRef.current.running = false;
+    const saved = localStorage.getItem(`jime_game_${gameKey}_high`);
+    setHighScore(saved ? parseInt(saved, 10) : 0);
   };
 
   useEffect(() => {
@@ -108,106 +216,69 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
 
     const width = (canvas.width = 600);
     const height = (canvas.height = 380);
+    const e = engineRef.current;
+    e.width = width;
+    e.height = height;
 
-    // Generate static backdrop starfield
-    const stars = Array.from({ length: 45 }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      size: Math.random() * 1.5 + 0.5,
-      speed: Math.random() * 0.4 + 0.2,
-      alpha: Math.random() * 0.7 + 0.3,
-    }));
-    gameStateRef.current.stars = stars;
+    const handleKeyDown = (evt) => {
+      e.keys[evt.code] = true;
 
-    const handleKeyDown = (e) => {
-      gameStateRef.current.keys[e.code] = true;
-      if (e.code === 'Space' && gameStateRef.current.running) {
-        e.preventDefault();
+      // Snake Direction control
+      if (e.game === 'snake' && e.running) {
+        if ((evt.code === 'ArrowUp' || evt.code === 'KeyW') && e.snakeDir.y === 0) {
+          e.nextDir = { x: 0, y: -1 };
+          evt.preventDefault();
+        } else if ((evt.code === 'ArrowDown' || evt.code === 'KeyS') && e.snakeDir.y === 0) {
+          e.nextDir = { x: 0, y: 1 };
+          evt.preventDefault();
+        } else if ((evt.code === 'ArrowLeft' || evt.code === 'KeyA') && e.snakeDir.x === 0) {
+          e.nextDir = { x: -1, y: 0 };
+          evt.preventDefault();
+        } else if ((evt.code === 'ArrowRight' || evt.code === 'KeyD') && e.snakeDir.x === 0) {
+          e.nextDir = { x: 1, y: 0 };
+          evt.preventDefault();
+        }
+      }
+
+      if (evt.code === 'Space' && e.running) {
+        evt.preventDefault();
       }
     };
 
-    const handleKeyUp = (e) => {
-      gameStateRef.current.keys[e.code] = false;
+    const handleKeyUp = (evt) => {
+      e.keys[evt.code] = false;
     };
 
-    const handleCanvasMouseMove = (e) => {
+    const handleCanvasMouseMove = (evt) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
-      const clientX = e.clientX - rect.left;
-      gameStateRef.current.mousePos.x = clientX * scaleX;
+      const clientX = (evt.clientX - rect.left) * scaleX;
+      e.mousePos.x = clientX;
     };
 
-    const handleCanvasMouseDown = () => {
-      if (!gameStateRef.current.running) {
-        startGame();
-      } else {
-        shootLaser();
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (!e.touches[0]) return;
+    const handleTouchMove = (evt) => {
+      if (!evt.touches[0]) return;
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
-      const clientX = e.touches[0].clientX - rect.left;
-      gameStateRef.current.mousePos.x = clientX * scaleX;
-      if (gameStateRef.current.running) {
-        shootLaser();
-      }
+      const clientX = (evt.touches[0].clientX - rect.left) * scaleX;
+      e.mousePos.x = clientX;
     };
 
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     canvas.addEventListener('mousemove', handleCanvasMouseMove);
-    canvas.addEventListener('mousedown', handleCanvasMouseDown);
     canvas.addEventListener('touchmove', handleTouchMove, { passive: true });
 
-    const shootLaser = () => {
-      const state = gameStateRef.current;
-      const now = Date.now();
-      if (now - state.lastShot > 140) {
-        state.lasers.push({
-          x: state.player.x - 6,
-          y: state.player.y - 12,
-          vx: 0,
-          vy: -8,
-        });
-        state.lasers.push({
-          x: state.player.x + 6,
-          y: state.player.y - 12,
-          vx: 0,
-          vy: -8,
-        });
-        state.lastShot = now;
-        playSound('laser');
-      }
-    };
-
-    const spawnEnemy = () => {
-      const bugTypes = [
-        { label: 'BUG', color: '#ff3366', points: 20, speed: 1.8, size: 20 },
-        { label: '404', color: '#00b4d8', points: 30, speed: 2.2, size: 22 },
-        { label: 'LAG', color: '#ffb703', points: 50, speed: 2.8, size: 24 },
-        { label: 'NULL', color: '#a855f7', points: 40, speed: 2.0, size: 22 },
-      ];
-      const type = bugTypes[Math.floor(Math.random() * bugTypes.length)];
-      gameStateRef.current.enemies.push({
-        x: Math.random() * (width - 60) + 30,
-        y: -20,
-        ...type,
-      });
-    };
-
     const createExplosion = (x, y, color) => {
-      for (let i = 0; i < 14; i++) {
+      for (let i = 0; i < 12; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 4 + 1.5;
-        gameStateRef.current.particles.push({
+        const spd = Math.random() * 4 + 1.5;
+        e.particles.push({
           x,
           y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 2.5 + 1,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          size: Math.random() * 2.5 + 1.5,
           color,
           alpha: 1,
           decay: Math.random() * 0.04 + 0.02,
@@ -215,160 +286,357 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       }
     };
 
+    // Main 60fps Game Loop
     const loop = () => {
       ctx.clearRect(0, 0, width, height);
 
-      const state = gameStateRef.current;
-
-      // 1. Draw Starfield
-      for (let star of state.stars) {
-        star.y += star.speed;
-        if (star.y > height) star.y = 0;
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-        ctx.fillRect(star.x, star.y, star.size, star.size);
+      // Draw subtle retro grid background
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const step = 20;
+      for (let x = 0; x < width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
       }
 
-      if (state.running) {
-        // Player keyboard / mouse smoothing
-        if (state.keys['ArrowLeft'] || state.keys['KeyA']) {
-          state.player.x -= state.player.speed;
-        } else if (state.keys['ArrowRight'] || state.keys['KeyD']) {
-          state.player.x += state.player.speed;
-        } else {
-          state.player.x += (state.mousePos.x - state.player.x) * 0.2;
-        }
+      // ==========================================
+      // 1. GAME: CYBER BRICK BREAKER
+      // ==========================================
+      if (e.game === 'brick') {
+        if (e.running) {
+          // Paddle position update with mouse or keys
+          if (e.keys['ArrowLeft'] || e.keys['KeyA']) {
+            e.paddle.x -= e.paddle.speed;
+          } else if (e.keys['ArrowRight'] || e.keys['KeyD']) {
+            e.paddle.x += e.paddle.speed;
+          } else {
+            e.paddle.x += (e.mousePos.x - e.paddle.width / 2 - e.paddle.x) * 0.25;
+          }
+          e.paddle.x = Math.max(10, Math.min(width - e.paddle.width - 10, e.paddle.x));
 
-        if (state.keys['Space']) {
-          shootLaser();
-        }
+          // Update Balls
+          for (let i = e.balls.length - 1; i >= 0; i--) {
+            const b = e.balls[i];
+            b.x += b.vx;
+            b.y += b.vy;
 
-        // Clamp player in bounds
-        state.player.x = Math.max(20, Math.min(width - 20, state.player.x));
+            // Wall collisions
+            if (b.x - b.radius < 0) {
+              b.x = b.radius;
+              b.vx = Math.abs(b.vx);
+              playSound('bounce');
+            } else if (b.x + b.radius > width) {
+              b.x = width - b.radius;
+              b.vx = -Math.abs(b.vx);
+              playSound('bounce');
+            }
+            if (b.y - b.radius < 0) {
+              b.y = b.radius;
+              b.vy = Math.abs(b.vy);
+              playSound('bounce');
+            }
 
-        // Spawn Enemies
-        state.enemySpawnTimer++;
-        if (state.enemySpawnTimer > 38) {
-          spawnEnemy();
-          state.enemySpawnTimer = 0;
-        }
+            // Paddle collision
+            if (
+              b.y + b.radius >= e.paddle.y &&
+              b.y - b.radius <= e.paddle.y + e.paddle.height &&
+              b.x >= e.paddle.x &&
+              b.x <= e.paddle.x + e.paddle.width &&
+              b.vy > 0
+            ) {
+              // Hit angle based on hit position
+              const hitOffset = (b.x - (e.paddle.x + e.paddle.width / 2)) / (e.paddle.width / 2);
+              b.vx = hitOffset * 5.5;
+              b.vy = -Math.abs(b.vy);
+              playSound('bounce');
+            }
 
-        // Update Lasers
-        for (let i = state.lasers.length - 1; i >= 0; i--) {
-          const l = state.lasers[i];
-          l.y += l.vy;
-          if (l.y < -10) {
-            state.lasers.splice(i, 1);
-            continue;
+            // Brick collisions
+            let activeBricksCount = 0;
+            for (let br of e.bricks) {
+              if (!br.alive) continue;
+              activeBricksCount++;
+
+              if (
+                b.x + b.radius >= br.x &&
+                b.x - b.radius <= br.x + br.width &&
+                b.y + b.radius >= br.y &&
+                b.y - b.radius <= br.y + br.height
+              ) {
+                br.alive = false;
+                b.vy = -b.vy;
+                createExplosion(br.x + br.width / 2, br.y + br.height / 2, br.color);
+                playSound('brick');
+
+                // Spawn random power-up
+                if (Math.random() < 0.22) {
+                  e.powerups.push({
+                    x: br.x + br.width / 2,
+                    y: br.y + br.height / 2,
+                    type: Math.random() > 0.5 ? 'wide' : 'multi',
+                    vy: 2.2,
+                  });
+                }
+
+                setScore((prev) => {
+                  const newScore = prev + br.points;
+                  if (newScore > highScore) {
+                    setHighScore(newScore);
+                    try {
+                      localStorage.setItem('jime_game_brick_high', newScore.toString());
+                    } catch {}
+                  }
+                  if (newScore >= 400 && !unlockedReward) {
+                    setUnlockedReward(true);
+                    playSound('win');
+                  }
+                  return newScore;
+                });
+                break;
+              }
+            }
+
+            // Check Win Condition
+            if (activeBricksCount === 0) {
+              e.running = false;
+              setIsPlaying(false);
+              setIsGameWon(true);
+              playSound('win');
+            }
+
+            // Ball drops below paddle
+            if (b.y > height + 20) {
+              e.balls.splice(i, 1);
+            }
           }
 
-          // Draw laser
-          ctx.beginPath();
-          ctx.arc(l.x, l.y, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#00f0ff';
-          ctx.shadowColor = '#00b4d8';
-          ctx.shadowBlur = 8;
-          ctx.fill();
-        }
-
-        // Update Enemies
-        for (let i = state.enemies.length - 1; i >= 0; i--) {
-          const e = state.enemies[i];
-          e.y += e.speed;
-
-          // Check laser collisions
-          for (let j = state.lasers.length - 1; j >= 0; j--) {
-            const l = state.lasers[j];
-            const dist = Math.hypot(e.x - l.x, e.y - l.y);
-            if (dist < e.size + 4) {
-              createExplosion(e.x, e.y, e.color);
-              playSound('hit');
-              state.score += e.points;
-              setScore(state.score);
-
-              // Check if unlocked discount milestone
-              if (state.score >= 500 && !hasUnlockedDiscount) {
-                setHasUnlockedDiscount(true);
-                playSound('unlock');
+          // If all balls lost
+          if (e.balls.length === 0) {
+            setLives((prevLives) => {
+              const newLives = prevLives - 1;
+              if (newLives > 0) {
+                e.balls.push({
+                  x: e.paddle.x + e.paddle.width / 2,
+                  y: e.paddle.y - 15,
+                  vx: (Math.random() > 0.5 ? 4 : -4),
+                  vy: -4.5,
+                  radius: 6,
+                });
+                playSound('hit');
+              } else {
+                e.running = false;
+                setIsPlaying(false);
+                setIsGameOver(true);
+                playSound('hit');
               }
+              return newLives;
+            });
+          }
 
-              // Update highscore
-              if (state.score > highScore) {
-                setHighScore(state.score);
-                try {
-                  localStorage.setItem('jime_game_highscore', state.score.toString());
-                } catch {
-                  /* ignore */
+          // Update & Draw Power-ups
+          for (let pIdx = e.powerups.length - 1; pIdx >= 0; pIdx--) {
+            const p = e.powerups[pIdx];
+            p.y += p.vy;
+
+            // Catch power-up with paddle
+            if (
+              p.y >= e.paddle.y &&
+              p.y <= e.paddle.y + e.paddle.height &&
+              p.x >= e.paddle.x &&
+              p.x <= e.paddle.x + e.paddle.width
+            ) {
+              playSound('powerup');
+              if (p.type === 'wide') {
+                e.paddle.width = Math.min(140, e.paddle.width + 30);
+              } else if (p.type === 'multi') {
+                if (e.balls[0]) {
+                  e.balls.push({
+                    x: e.balls[0].x,
+                    y: e.balls[0].y,
+                    vx: -3.5,
+                    vy: -4,
+                    radius: 6,
+                  });
+                  e.balls.push({
+                    x: e.balls[0].x,
+                    y: e.balls[0].y,
+                    vx: 3.5,
+                    vy: -4,
+                    radius: 6,
+                  });
                 }
               }
-
-              state.enemies.splice(i, 1);
-              state.lasers.splice(j, 1);
-              break;
+              e.powerups.splice(pIdx, 1);
+              continue;
             }
-          }
 
-          // Check player collision or bottom breach
-          if (e.y > height - 30) {
-            state.lives -= 1;
-            setLives(state.lives);
-            createExplosion(e.x, e.y, '#ff3366');
-            state.enemies.splice(i, 1);
-
-            if (state.lives <= 0) {
-              state.running = false;
-              setIsPlaying(false);
-              setIsGameOver(true);
+            if (p.y > height + 20) {
+              e.powerups.splice(pIdx, 1);
+              continue;
             }
-            continue;
-          }
 
-          // Draw Enemy
+            // Draw Power-Up pill
+            ctx.save();
+            ctx.fillStyle = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
+            ctx.shadowColor = p.type === 'wide' ? '#00b4d8' : '#f59e0b';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        // Render Bricks
+        for (let br of e.bricks) {
+          if (!br.alive) continue;
           ctx.save();
-          ctx.shadowColor = e.color;
-          ctx.shadowBlur = 10;
-          ctx.fillStyle = e.color;
+          ctx.fillStyle = br.color;
+          ctx.shadowColor = br.color;
+          ctx.shadowBlur = 6;
           ctx.beginPath();
-          ctx.arc(e.x, e.y, e.size / 2, 0, Math.PI * 2);
+          ctx.roundRect(br.x, br.y, br.width, br.height, 4);
           ctx.fill();
 
-          ctx.font = 'bold 9px "Plus Jakarta Sans", sans-serif';
-          ctx.fillStyle = '#ffffff';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(e.label, e.x, e.y);
+          // Specular top highlight on brick
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+          ctx.fillRect(br.x + 2, br.y + 2, br.width - 4, 3);
           ctx.restore();
         }
 
-        // Draw Player Ship (Electric Blue Neon Fighter)
+        // Render Paddle
         ctx.save();
-        ctx.shadowColor = '#00b4d8';
-        ctx.shadowBlur = 14;
         ctx.fillStyle = '#00b4d8';
+        ctx.shadowColor = '#00b4d8';
+        ctx.shadowBlur = 12;
         ctx.beginPath();
-        ctx.moveTo(state.player.x, state.player.y - 14);
-        ctx.lineTo(state.player.x - 14, state.player.y + 12);
-        ctx.lineTo(state.player.x, state.player.y + 7);
-        ctx.lineTo(state.player.x + 14, state.player.y + 12);
-        ctx.closePath();
+        ctx.roundRect(e.paddle.x, e.paddle.y, e.paddle.width, e.paddle.height, 6);
         ctx.fill();
 
-        // Inner glowing core
+        // Paddle inner white shine
         ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(state.player.x, state.player.y + 2, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(e.paddle.x + 8, e.paddle.y + 2, e.paddle.width - 16, 2);
         ctx.restore();
+
+        // Render Balls
+        for (let b of e.balls) {
+          ctx.save();
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#00b4d8';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
       }
 
-      // Update & Draw Particles
-      for (let i = state.particles.length - 1; i >= 0; i--) {
-        const p = state.particles[i];
+      // ==========================================
+      // 2. GAME: QUANTUM NEON SNAKE
+      // ==========================================
+      else if (e.game === 'snake') {
+        const cellSize = 20;
+
+        if (e.running) {
+          const now = Date.now();
+          if (now - e.lastSnakeStep > e.snakeSpeed) {
+            e.snakeDir = e.nextDir;
+            const head = {
+              x: e.snake[0].x + e.snakeDir.x,
+              y: e.snake[0].y + e.snakeDir.y,
+            };
+
+            // Wall wrap-around
+            if (head.x < 0) head.x = e.gridCols - 1;
+            if (head.x >= e.gridCols) head.x = 0;
+            if (head.y < 0) head.y = e.gridRows - 1;
+            if (head.y >= e.gridRows) head.y = 0;
+
+            // Self collision check
+            for (let segment of e.snake) {
+              if (segment.x === head.x && segment.y === head.y) {
+                e.running = false;
+                setIsPlaying(false);
+                setIsGameOver(true);
+                playSound('hit');
+                break;
+              }
+            }
+
+            if (e.running) {
+              e.snake.unshift(head);
+
+              // Check Food Collision
+              if (head.x === e.food.x && head.y === e.food.y) {
+                playSound('brick');
+                createExplosion(head.x * cellSize + 10, head.y * cellSize + 10, '#00b4d8');
+                setScore((prev) => {
+                  const newScore = prev + 50;
+                  if (newScore > highScore) {
+                    setHighScore(newScore);
+                    try {
+                      localStorage.setItem('jime_game_snake_high', newScore.toString());
+                    } catch {}
+                  }
+                  if (newScore >= 350 && !unlockedReward) {
+                    setUnlockedReward(true);
+                    playSound('win');
+                  }
+                  return newScore;
+                });
+                e.food = {
+                  x: Math.floor(Math.random() * (e.gridCols - 2)) + 1,
+                  y: Math.floor(Math.random() * (e.gridRows - 2)) + 1,
+                };
+              } else {
+                e.snake.pop();
+              }
+              e.lastSnakeStep = now;
+            }
+          }
+        }
+
+        // Draw Food
+        ctx.save();
+        ctx.fillStyle = '#00b4d8';
+        ctx.shadowColor = '#00b4d8';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.arc(e.food.x * cellSize + 10, e.food.y * cellSize + 10, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw Snake
+        for (let i = 0; i < e.snake.length; i++) {
+          const seg = e.snake[i];
+          ctx.save();
+          ctx.fillStyle = i === 0 ? '#ffffff' : `rgba(0, 180, 216, ${Math.max(0.3, 1 - i / e.snake.length)})`;
+          ctx.shadowColor = '#00b4d8';
+          ctx.shadowBlur = i === 0 ? 12 : 6;
+          ctx.beginPath();
+          ctx.roundRect(seg.x * cellSize + 2, seg.y * cellSize + 2, cellSize - 4, cellSize - 4, 4);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // Render Particles across all games
+      for (let i = e.particles.length - 1; i >= 0; i--) {
+        const p = e.particles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.alpha -= p.decay;
 
         if (p.alpha <= 0) {
-          state.particles.splice(i, 1);
+          e.particles.splice(i, 1);
           continue;
         }
 
@@ -389,16 +657,15 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       canvas.removeEventListener('mousemove', handleCanvasMouseMove);
-      canvas.removeEventListener('mousedown', handleCanvasMouseDown);
       canvas.removeEventListener('touchmove', handleTouchMove);
       cancelAnimationFrame(animationId);
     };
-  }, [soundEnabled, highScore, hasUnlockedDiscount]);
+  }, [soundEnabled, activeGame, highScore, unlockedReward]);
 
   return (
     <footer className="footer-section">
       <div className="footer-container">
-        {/* Retro-Futuristic Cyber Arcade Mini-Game Card */}
+        {/* Cyber Arcade Mini-Game Section */}
         <div className="footer-game-card">
           <div className="game-card-header">
             <div className="game-header-left">
@@ -406,13 +673,41 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                 <Sparkles size={13} />
                 <span>CYBER ARCADE EASTER EGG</span>
               </span>
-              <h3 className="game-title">Defend The Codebase</h3>
+              <h3 className="game-title">
+                {activeGame === 'brick'
+                  ? '⚡ Cyber Brick Breaker'
+                  : activeGame === 'snake'
+                  ? '🐍 Quantum Neon Snake'
+                  : '🚀 Codebase Defender'}
+              </h3>
               <p className="game-desc">
-                Blast falling bugs & glitches before they reach production! Score 500+ to unlock a 10% discount.
+                {activeGame === 'brick'
+                  ? 'Smash glowing data blocks! Score 400+ to unlock a 10% project discount code.'
+                  : 'Navigate the quantum data grid! Eat nodes and avoid crashing.'}
               </p>
             </div>
 
+            {/* Game Selector Tabs & Controls */}
             <div className="game-header-controls">
+              <div className="game-tabs-group">
+                <button
+                  type="button"
+                  className={`game-tab-btn ${activeGame === 'brick' ? 'game-tab-active' : ''}`}
+                  onClick={() => switchGame('brick')}
+                >
+                  <Layers size={13} />
+                  <span>Bricks</span>
+                </button>
+                <button
+                  type="button"
+                  className={`game-tab-btn ${activeGame === 'snake' ? 'game-tab-active' : ''}`}
+                  onClick={() => switchGame('snake')}
+                >
+                  <Flame size={13} />
+                  <span>Snake</span>
+                </button>
+              </div>
+
               <button
                 type="button"
                 className="game-sound-btn"
@@ -440,44 +735,57 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
                   <span className="hud-label">SCORE</span>
                   <span className="hud-value">{score}</span>
                 </div>
-                <div className="hud-lives">
-                  {Array.from({ length: 3 }).map((_, idx) => (
-                    <Heart
-                      key={idx}
-                      size={16}
-                      className={idx < lives ? 'heart-alive' : 'heart-dead'}
-                    />
-                  ))}
-                </div>
+
+                {activeGame === 'brick' && (
+                  <div className="hud-lives">
+                    {Array.from({ length: 3 }).map((_, idx) => (
+                      <Heart
+                        key={idx}
+                        size={16}
+                        className={idx < lives ? 'heart-alive' : 'heart-dead'}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Start Screen Overlay */}
-            {!isPlaying && !isGameOver && (
+            {!isPlaying && !isGameOver && !isGameWon && (
               <div className="game-overlay">
-                <div className="overlay-badge">ARCADE MODE</div>
-                <h4>Blast The Bugs</h4>
-                <p>Move mouse / touch to aim & shoot</p>
-                <button type="button" className="game-play-btn" onClick={startGame}>
+                <div className="overlay-badge">
+                  {activeGame === 'brick' ? 'NEON BREAKOUT' : 'QUANTUM GRID'}
+                </div>
+                <h4>
+                  {activeGame === 'brick' ? 'Smash The Codebase' : 'Feed The Quantum Snake'}
+                </h4>
+                <p>
+                  {activeGame === 'brick'
+                    ? 'Move mouse or drag to aim paddle · Catch falling power-ups!'
+                    : 'Use Arrow Keys or WASD to turn · Do not crash into yourself!'}
+                </p>
+                <button type="button" className="game-play-btn" onClick={handleStartGame}>
                   <Play size={16} fill="currentColor" />
-                  <span>Start Mission</span>
+                  <span>Start Game</span>
                 </button>
               </div>
             )}
 
             {/* Game Over Screen Overlay */}
-            {isGameOver && (
+            {(isGameOver || isGameWon) && (
               <div className="game-overlay">
-                <div className="overlay-badge game-over-badge">MISSION FAILED</div>
+                <div className={`overlay-badge ${isGameWon ? 'game-won-badge' : 'game-over-badge'}`}>
+                  {isGameWon ? 'STAGE CLEARED!' : 'GAME OVER'}
+                </div>
                 <h4>Final Score: {score}</h4>
-                {score >= 500 ? (
+                {score >= 350 ? (
                   <p className="game-reward-unlocked">
                     🎉 10% Discount Unlocked! Code: <strong>BUGBLASTER10</strong>
                   </p>
                 ) : (
-                  <p>Reach 500 points to unlock the 10% project perk!</p>
+                  <p>Reach 350+ points to unlock your exclusive 10% project discount!</p>
                 )}
-                <button type="button" className="game-play-btn" onClick={restartGame}>
+                <button type="button" className="game-play-btn" onClick={handleStartGame}>
                   <RotateCcw size={16} />
                   <span>Play Again</span>
                 </button>
@@ -486,13 +794,13 @@ export default function FooterGameSection({ onOpenBookCall, onOpenVerifyCert, on
           </div>
 
           {/* Secret Milestone Reward Banner */}
-          {hasUnlockedDiscount && (
+          {unlockedReward && (
             <div className="game-discount-banner">
               <div className="discount-left">
                 <span className="discount-icon">🎁</span>
                 <div>
-                  <strong>Secret Milestone Achieved!</strong>
-                  <span>Use promo code <strong>BUGBLASTER10</strong> for 10% off your project proposal.</span>
+                  <strong>Secret Perk Unlocked!</strong>
+                  <span>Use promo code <strong>BUGBLASTER10</strong> for 10% off your next project proposal.</span>
                 </div>
               </div>
               <button
